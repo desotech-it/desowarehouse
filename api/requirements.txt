@@ -1,0 +1,3 @@
+fastapi==0.105.*
+uvicorn[standard]==0.24.*
+mariadb==1.1.*
