@@ -12,7 +12,7 @@ services:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_USER: user
       MARIADB_PASSWORD: password
-      MARIADB_DATABASE: shop_app
+      MARIADB_DATABASE: shop
     volumes:
       - mariadb:/var/lib/mysql
       - ./db/initdb.d:/docker-entrypoint-initdb.d:ro
