@@ -4,21 +4,46 @@ volumes:
   mariadb: ~
 
 services:
-  mariadb:
+  db:
     image: mariadb:11
     restart: always
     init: true
     environment:
       MARIADB_ROOT_PASSWORD: root
-      MARIADB_USER: user
-      MARIADB_PASSWORD: password
-      MARIADB_DATABASE: shop
+      MARIADB_USER: &database_user user
+      MARIADB_PASSWORD: &database_password password
+      MARIADB_DATABASE: &database_name shop
     volumes:
       - mariadb:/var/lib/mysql
       - ./db/initdb.d:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  api:
+    depends_on:
+      db:
+        condition: service_healthy
+    image: shop-api
+    restart: always
+    build: api
+    init: true
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: *database_user
+      DATABASE_PASSWORD: *database_password
+      DATABASE_NAME: *database_name
+    ports:
+      - 8080:8080
+    volumes:
+      - ./api:/usr/local/src:ro
+    command: [uvicorn, main:app, --host=0.0.0.0, --port=8080, --reload]
 
   adminer:
+    depends_on: [db]
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8888:8080
