@@ -2,8 +2,9 @@ from fastapi import FastAPI, Response, HTTPException
 import os
 import mariadb
 import sys
-
+import shipment
 import user
+import product
 
 db_host = os.environ['DATABASE_HOST']
 db_name = os.environ['DATABASE_NAME']
@@ -20,7 +21,8 @@ except mariadb.Error as e:
 app = FastAPI()
 
 user_repository = user.DatabaseUserRepository(conn)
-
+product_repository = product.DatabaseProductRepository(conn)
+shipments_repository = shipment.DatabaseShipmentRepository(conn)
 @app.get("/users")
 def read_users():
     users = user_repository.list()
@@ -34,3 +36,29 @@ def read_user(id: int, response: Response):
         raise HTTPException(status_code=404)
     else:
         return user
+
+@app.get("/products")
+def read_users():
+    products = product_repository.list()
+    return products
+
+@app.get("/products/{id}")
+def read_user(id: int, response: Response):
+    product = product_repository.get(id)
+    if user is None:
+        raise HTTPException(status_code=404)
+    else:
+        return product
+    
+@app.get("/shipments")
+def read_users():
+    shipments = shipments_repository.list()
+    return shipments
+
+@app.get("/shipments/{id}")
+def read_user(id: int, response: Response):
+    shipment = shipments_repository.get(id)
+    if user is None:
+        raise HTTPException(status_code=404)
+    else:
+        return shipment
