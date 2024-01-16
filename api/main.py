@@ -6,6 +6,7 @@ import sys
 import shipment
 import user
 import product
+import order
 
 db_host = os.environ['DATABASE_HOST']
 db_name = os.environ['DATABASE_NAME']
@@ -24,6 +25,8 @@ app = FastAPI()
 user_repository = user.DatabaseUserRepository(conn)
 product_repository = product.DatabaseProductRepository(conn)
 shipments_repository = shipment.DatabaseShipmentRepository(conn)
+order_repository = order.DatabaseOrderRepository(conn)
+
 @app.get("/users")
 def read_users():
     users = user_repository.list()
@@ -50,7 +53,7 @@ def read_user(id: int, response: Response):
         raise HTTPException(status_code=404)
     else:
         return product
-    
+
 @app.get("/shipments")
 def read_users():
     shipments = shipments_repository.list()
@@ -63,7 +66,12 @@ def read_user(id: int, response: Response):
         raise HTTPException(status_code=404)
     else:
         return shipment
-    
+
+@app.get("/orders")
+def read_orders():
+    orders = order_repository.list()
+    return orders
+
 class Model(BaseModel):
     id: int
 @app.post("/shipments", status_code=status.HTTP_201_CREATED)
