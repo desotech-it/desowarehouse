@@ -7,6 +7,9 @@ SELECT id, order_id, datetime
 FROM `shipment`
 WHERE id=?
 """
+CREATE_SHIPMENT_BY_ORDER_ID="""
+INSERT INTO shipment(order_id) VALUES (?)
+"""
 class Shipment:
     def __init__(self, id, order_id, datetime):
         self.id = id
@@ -34,3 +37,17 @@ class DatabaseShipmentRepository:
         for (id, order_id, datetime) in cur:
             return Shipment(id, order_id, datetime)
         return None
+    
+    def create(self, order_id):
+        try:
+            cur = self.connection.cursor()
+            cur.execute(CREATE_SHIPMENT_BY_ORDER_ID, (order_id,))
+            print(f"{cur.rowcount} details inserted") 
+            rows=cur.rowcount
+            self.connection.commit()  
+            #non ritorna ciò che crea
+            #bisogna fare una join con prodotto per estrarre id_shipment, id_order, data
+            # shipment=self.get(order_id)
+            # return shipment
+        except self.connection.Error:
+            return self.connection.Error
