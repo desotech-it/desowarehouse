@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Response, HTTPException
+from fastapi import FastAPI, Response, HTTPException, status
+from pydantic import BaseModel
 import os
 import mariadb
 import sys
@@ -62,3 +63,13 @@ def read_user(id: int, response: Response):
         raise HTTPException(status_code=404)
     else:
         return shipment
+    
+class Model(BaseModel):
+    id: int
+@app.post("/shipments", status_code=status.HTTP_201_CREATED)
+def create_shipment(model:Model, response: Response, status_code=status.HTTP_201_CREATED):
+    try:
+        shipment = shipments_repository.create(model.id)
+        return shipment
+    except:
+        return HTTPException(status_code=404)
