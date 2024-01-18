@@ -18,7 +18,7 @@ VALUES
 	('Francesco', 'Grimaldi', 'f.grimaldi@desolabs.com', '1997-05-09', SHA2('fgrimaldi', 0));
 
 INSERT INTO `inventory` (`product_id`,`quantity`)
-VALUES 
+VALUES
 	(1, FLOOR(RAND()*(10)+1)),
 	(2, FLOOR(RAND()*(10)+1)),
 	(3, FLOOR(RAND()*(10)+1)),
@@ -29,3 +29,16 @@ VALUES
 	(8, FLOOR(RAND()*(10)+1)),
 	(9, FLOOR(RAND()*(10)+1)),
 	(10, FLOOR(RAND()*(10)+1));
+
+INSERT INTO `order` (`datetime`)
+VALUES
+	('2024-01-18'),
+	('2023-12-31'),
+	('2022-05-11');
+
+INSERT INTO `order_product` (`order_id`, `product_id`, `quantity`)
+VALUES
+	(1, 1, 1),
+	(2, 4, 1),
+	(2, 5, 2),
+	(3, 7, 5);
