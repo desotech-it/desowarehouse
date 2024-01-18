@@ -16,3 +16,16 @@ VALUES
 	('Gianluca', 'Recchia', 'g.recchia@desolabs.com', '1997-09-16', SHA2('grecchia', 0)),
 	('Cristian', 'Gramegna', 'c.gramegna@desolabs.com', '2005-05-02', SHA2('cgramegna', 0)),
 	('Francesco', 'Grimaldi', 'f.grimaldi@desolabs.com', '1997-05-09', SHA2('fgrimaldi', 0));
+
+INSERT INTO `inventory` (`product_id`,`quantity`)
+VALUES 
+	(1, FLOOR(RAND()*(10)+1)),
+	(2, FLOOR(RAND()*(10)+1)),
+	(3, FLOOR(RAND()*(10)+1)),
+	(4, FLOOR(RAND()*(10)+1)),
+	(5, FLOOR(RAND()*(10)+1)),
+	(6, FLOOR(RAND()*(10)+1)),
+	(7, FLOOR(RAND()*(10)+1)),
+	(8, FLOOR(RAND()*(10)+1)),
+	(9, FLOOR(RAND()*(10)+1)),
+	(10, FLOOR(RAND()*(10)+1));
