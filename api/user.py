@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import date
 
 READ_USERS_QUERY = 'SELECT `id`,`first_name`,`last_name`,`mail`,`birthdate` FROM `user`'
 READ_USER_BY_ID = """
@@ -13,7 +13,7 @@ class User(BaseModel):
     first_name: str
     last_name: str
     mail: str
-    birthdate: datetime
+    birthdate: date
 
 class DatabaseUserRepository:
     def __init__(self, connection):
