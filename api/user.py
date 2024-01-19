@@ -7,6 +7,9 @@ SELECT `id`, `first_name`, `last_name`, `mail`, `birthdate`
 FROM `user`
 WHERE `id`=?
 """
+READ_USER_CREDENTIALS = 'SELECT `mail`,`password` FROM `user` WHERE `mail`=?'
+
+# TODO: implemented salted password
 
 class User(BaseModel):
     id: int
@@ -14,6 +17,10 @@ class User(BaseModel):
     last_name: str
     mail: str
     birthdate: date
+
+class UserCredentials(BaseModel):
+    username: str
+    hashed_password: str
 
 class DatabaseUserRepository:
     def __init__(self, connection):
@@ -33,3 +40,11 @@ class DatabaseUserRepository:
         for (id, first_name, last_name, mail, birthdate) in cur:
             return User(id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate)
         return None
+
+    def get_credentials(self, username) -> UserCredentials | None:
+        cur = self.connection.cursor()
+        cur.execute(READ_USER_CREDENTIALS, (username,))
+        user = None
+        for (mail, password) in cur:
+            user = UserCredentials(username=mail, hashed_password=password)
+        return user
