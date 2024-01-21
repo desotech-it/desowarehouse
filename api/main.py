@@ -55,7 +55,7 @@ def read_users():
 @app.get("/products/{id}")
 def read_user(id: int, response: Response):
     product = product_repository.get(id)
-    if user is None:
+    if product is None:
         raise HTTPException(status_code=404)
     else:
         return product
@@ -68,25 +68,50 @@ def read_users():
 @app.get("/shipments/{id}")
 def read_user(id: int, response: Response):
     shipment = shipments_repository.get(id)
-    if user is None:
+    if shipment is None:
         raise HTTPException(status_code=404)
     else:
         return shipment
 
-@app.get("/orders")
-def read_orders():
-    orders = order_repository.list()
-    return orders
 
-class Model(BaseModel):
+class ShipmentModel(BaseModel):
     id: int
 @app.post("/shipments", status_code=status.HTTP_201_CREATED)
-def create_shipment(model:Model, response: Response, status_code=status.HTTP_201_CREATED):
+def create_shipment(model:ShipmentModel, response: Response, status_code=status.HTTP_201_CREATED):
     try:
         shipment = shipments_repository.create(model.id)
         return shipment
     except:
         return HTTPException(status_code=404)
+
+
+@app.get("/orders")
+def read_orders():
+    orders = order_repository.list()
+    return orders
+  
+@app.get("/orders/{id}")
+def read_order(id:int):
+    try:
+        order = order_repository.get(id)
+        return order
+    except:
+        raise HTTPException(status_code=404)
+
+class OrderModel(BaseModel):
+    product_id: int
+    quantity: int
+@app.post("/orders")
+def create_order(model: OrderModel):
+    order = order_repository.create(model.product_id, model.quantity)
+    return order
+
+@app.delete("/orders/{id}")
+def delete_order(id:int):
+    try:
+        order_repository.delete(id)
+    except:
+        return HTTPException(status_code=204)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
