@@ -42,3 +42,13 @@ VALUES
 	(2, 4, 1),
 	(2, 5, 2),
 	(3, 7, 5);
+
+INSERT INTO `role` (`name`)
+VALUES
+	('admin'),
+	('warehouse');
+
+INSERT INTO `user_role` (`user_id`, `role_id`)
+VALUES
+	(3, 1),
+	(2, 2);
