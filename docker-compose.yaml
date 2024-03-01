@@ -27,6 +27,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     image: shop-api
     restart: always
     build: api
@@ -46,6 +48,8 @@ services:
     image: redis:7
     restart: always
     init: true
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     volumes:
       - redis:/data
     command:
