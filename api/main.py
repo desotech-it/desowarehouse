@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi import FastAPI, Response, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta, timezone
 import hashlib
 from user import User, UserCredentials, DatabaseUserRepository
 from jose import JWTError, jwt
+import redis
 
 db_host = os.environ['DATABASE_HOST']
 db_name = os.environ['DATABASE_NAME']
@@ -25,6 +26,9 @@ try:
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
+
+# TODO: add error handling
+r = redis.Redis(host='redis', decode_responses=True)
 
 app = FastAPI()
 
@@ -89,7 +93,7 @@ def create_shipment(model:ShipmentModel, response: Response, status_code=status.
 def read_orders():
     orders = order_repository.list()
     return orders
-  
+
 @app.get("/orders/{id}")
 def read_order(id:int):
     try:
@@ -136,14 +140,23 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def fake_current_user():
-    return User(
-        id=1,
-        first_name='Gianluca',
-        last_name='Recchia',
-        mail='g.recchia@desolabs.com',
-        birthdate=date(1997, 9, 16),
-    )
+def get_user(username: str) -> Optional[User]:
+    user = r.get(username)
+    if user is None:
+        user = user_repository.get_by_mail(username)
+        print(f"Using {user.mail} from Redis")
+        r.set(username, user.model_dump_json())
+    else:
+        user = json.loads(user)
+        user = User(
+            id=user['id'],
+            first_name=user['first_name'],
+            last_name=user['last_name'],
+            mail=user['mail'],
+            birthdate=date.strptime(user['birthdate'], '%Y-%m-%d').date()
+        )
+
+    return user
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
@@ -151,6 +164,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    token_data = None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -159,8 +173,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    # user = get_user(fake_users_db, username=token_data.username)
-    user = fake_current_user()
+    user = get_user(token_data.username)
     if user is None:
         raise credentials_exception
     return user

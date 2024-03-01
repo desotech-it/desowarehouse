@@ -7,6 +7,11 @@ SELECT `id`, `first_name`, `last_name`, `mail`, `birthdate`
 FROM `user`
 WHERE `id`=?
 """
+READ_USER_BY_MAIL = """
+SELECT `id`, `first_name`, `last_name`, `mail`, `birthdate`
+FROM `user`
+WHERE `mail`=?
+"""
 READ_USER_CREDENTIALS = 'SELECT `mail`,`password` FROM `user` WHERE `mail`=?'
 
 # TODO: implemented salted password
@@ -37,6 +42,13 @@ class DatabaseUserRepository:
     def get(self, id):
         cur = self.connection.cursor()
         cur.execute(READ_USER_BY_ID, (id,))
+        for (id, first_name, last_name, mail, birthdate) in cur:
+            return User(id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate)
+        return None
+
+    def get_by_mail(self, mail):
+        cur = self.connection.cursor()
+        cur.execute(READ_USER_BY_MAIL, (mail,))
         for (id, first_name, last_name, mail, birthdate) in cur:
             return User(id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate)
         return None
