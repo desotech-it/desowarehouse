@@ -27,12 +27,15 @@ SECRET_KEY = "f2b5a308e934de7c37a179e416ae075449694bf0ac7672c23598778d6f837b09"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
     username: str | None = None
+
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -43,6 +46,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 def get_user(username: str) -> Optional[User]:
     user = r.get(username)
@@ -57,10 +61,11 @@ def get_user(username: str) -> Optional[User]:
             first_name=user['first_name'],
             last_name=user['last_name'],
             mail=user['mail'],
-            birthdate=date.strptime(user['birthdate'], '%Y-%m-%d').date()
+            birthdate=date.strptime(user['birthdate'], '%Y-%m-%d').date(),
         )
 
     return user
+
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
@@ -82,9 +87,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
+
 @app.get("/auth/me")
 async def read_auth_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
+
 
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
@@ -93,7 +100,10 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
     user = user_repository.get_credentials(username)
 
-    if user is None or not hashlib.sha256(bytes(password, 'utf-8')).hexdigest() == user.hashed_password:
+    if (
+        user is None
+        or not hashlib.sha256(bytes(password, 'utf-8')).hexdigest() == user.hashed_password
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",

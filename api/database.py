@@ -11,7 +11,7 @@ try:
         user=os.environ['DATABASE_USER'],
         password=os.environ['DATABASE_PASSWORD'],
         pool_name=name,
-        pool_size=8
+        pool_size=8,
     )
 except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
