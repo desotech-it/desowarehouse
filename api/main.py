@@ -13,7 +13,7 @@ from order import router as orders_router
 from shipment import router as shipments_router
 
 # TODO: add error handling
-r = redis.Redis(host='redis', decode_responses=True)
+r = redis.Redis(host='redis', decode_responses=True, protocol=3)
 
 app = FastAPI()
 app.include_router(users_router)
