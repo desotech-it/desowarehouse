@@ -1,121 +1,25 @@
 from typing import Annotated, Optional
-from fastapi import FastAPI, Response, HTTPException, status, Depends
+from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
-import os
-import mariadb
-import sys
-import shipment
-import user
-import product
-import order
 from datetime import date, datetime, timedelta, timezone
 import hashlib
-from user import User, UserCredentials, DatabaseUserRepository
 from jose import JWTError, jwt
 import redis
 
-db_host = os.environ['DATABASE_HOST']
-db_name = os.environ['DATABASE_NAME']
-db_user = os.environ['DATABASE_USER']
-db_pass = os.environ['DATABASE_PASSWORD']
-
-conn = None
-try:
-    conn = mariadb.connect(user=db_user, password=db_pass, host=db_host, database=db_name)
-except mariadb.Error as e:
-    print(f"Error connecting to MariaDB Platform: {e}")
-    sys.exit(1)
+from user import router as users_router, User, UserCredentials
+from product import router as products_router
+from order import router as orders_router
+from shipment import router as shipments_router
 
 # TODO: add error handling
 r = redis.Redis(host='redis', decode_responses=True)
 
 app = FastAPI()
-
-user_repository = DatabaseUserRepository(conn)
-product_repository = product.DatabaseProductRepository(conn)
-shipments_repository = shipment.DatabaseShipmentRepository(conn)
-order_repository = order.DatabaseOrderRepository(conn)
-
-@app.get("/users")
-def read_users():
-    users = user_repository.list()
-    return users
-
-
-@app.get("/users/{id}")
-def read_user(id: int, response: Response):
-    user = user_repository.get(id)
-    if user is None:
-        raise HTTPException(status_code=404)
-    else:
-        return user
-
-@app.get("/products")
-def read_users():
-    products = product_repository.list()
-    return products
-
-@app.get("/products/{id}")
-def read_user(id: int, response: Response):
-    product = product_repository.get(id)
-    if product is None:
-        raise HTTPException(status_code=404)
-    else:
-        return product
-
-@app.get("/shipments")
-def read_users():
-    shipments = shipments_repository.list()
-    return shipments
-
-@app.get("/shipments/{id}")
-def read_user(id: int, response: Response):
-    shipment = shipments_repository.get(id)
-    if shipment is None:
-        raise HTTPException(status_code=404)
-    else:
-        return shipment
-
-
-class ShipmentModel(BaseModel):
-    id: int
-@app.post("/shipments", status_code=status.HTTP_201_CREATED)
-def create_shipment(model:ShipmentModel, response: Response, status_code=status.HTTP_201_CREATED):
-    try:
-        shipment = shipments_repository.create(model.id)
-        return shipment
-    except:
-        return HTTPException(status_code=404)
-
-
-@app.get("/orders")
-def read_orders():
-    orders = order_repository.list()
-    return orders
-
-@app.get("/orders/{id}")
-def read_order(id:int):
-    try:
-        order = order_repository.get(id)
-        return order
-    except:
-        raise HTTPException(status_code=404)
-
-class OrderModel(BaseModel):
-    product_id: int
-    quantity: int
-@app.post("/orders")
-def create_order(model: OrderModel):
-    order = order_repository.create(model.product_id, model.quantity)
-    return order
-
-@app.delete("/orders/{id}")
-def delete_order(id:int):
-    try:
-        order_repository.delete(id)
-    except:
-        return HTTPException(status_code=204)
+app.include_router(users_router)
+app.include_router(products_router)
+app.include_router(orders_router)
+app.include_router(shipments_router)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

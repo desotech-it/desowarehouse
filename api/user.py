@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
+from fastapi import APIRouter, Response
+from database import name as database_name, pool
 
 READ_USERS_QUERY = 'SELECT `id`,`first_name`,`last_name`,`mail`,`birthdate` FROM `user`'
 READ_USER_BY_ID = """
@@ -59,4 +61,24 @@ class DatabaseUserRepository:
         user = None
         for (mail, password) in cur:
             user = UserCredentials(username=mail, hashed_password=password)
+        return user
+
+
+connection = pool.get_connection()
+connection.database = database_name
+user_repository = DatabaseUserRepository(connection)
+router = APIRouter()
+
+@router.get("/users", tags=['users'])
+def read_users():
+    users = user_repository.list()
+    return users
+
+
+@router.get("/users/{id}", tags=['users'])
+def read_user(id: int, response: Response):
+    user = user_repository.get(id)
+    if user is None:
+        raise HTTPException(status_code=404)
+    else:
         return user

@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from fastapi import APIRouter, Response
+from database import name as database_name, pool
 
 READ_PRODUCTS_QUERY="""
 SELECT product.id,product.name,product.price,product.width,product.height,product.depth,product.weight,inventory.quantity
@@ -39,3 +41,22 @@ class DatabaseProductRepository:
         for (id, name, price, width, height, depth, weight, quantity) in cur:
             return Product(id=id, name=name, price=price, width=width, height=height, depth=depth, weight=weight, quantity=quantity)
         return None
+
+
+connection = pool.get_connection()
+connection.database = database_name
+product_repository = DatabaseProductRepository(connection)
+router = APIRouter()
+
+@router.get("/products")
+def read_users():
+    products = product_repository.list()
+    return products
+
+@router.get("/products/{id}")
+def read_user(id: int, response: Response):
+    product = product_repository.get(id)
+    if product is None:
+        raise HTTPException(status_code=404)
+    else:
+        return product
