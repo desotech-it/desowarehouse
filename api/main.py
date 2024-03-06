@@ -7,7 +7,7 @@ import hashlib
 from jose import JWTError, jwt
 import redis
 
-from user import router as users_router, User, UserCredentials
+from user import router as users_router, user_repository, User, UserCredentials
 from product import router as products_router
 from order import router as orders_router
 from shipment import router as shipments_router
