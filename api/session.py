@@ -7,7 +7,7 @@ from typing import Annotated, Optional
 import hashlib
 import redis
 
-from user import User
+from user import User, user_repository
 
 # TODO: add error handling
 r = redis.Redis(host='redis', decode_responses=True, protocol=3)
