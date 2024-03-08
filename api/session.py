@@ -19,6 +19,7 @@ SECRET_KEY = "f2b5a308e934de7c37a179e416ae075449694bf0ac7672c23598778d6f837b09"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+DATE_FMT = '%Y-%m-%d'
 
 class Token(BaseModel):
     access_token: str
@@ -27,7 +28,6 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
-
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -44,15 +44,21 @@ def get_user(username: str) -> Optional[User]:
     user = r.hgetall('user:session:' + username)
     if len(user) == 0:
         user = user_repository.get_by_mail(username)
-        print(f"Using {user.mail} from Redis")
-        r.hset('user:session:' + username, mapping=user.model_dump())
+        mapping = {
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'mail': user.mail,
+            'birthdate': user.birthdate.strftime(DATE_FMT),
+        }
+        r.hset('user:session:' + username, mapping=mapping)
     else:
         user = User(
             id=user['id'],
             first_name=user['first_name'],
             last_name=user['last_name'],
             mail=user['mail'],
-            birthdate=date.strptime(user['birthdate'], '%Y-%m-%d').date(),
+            birthdate=date.strptime(user['birthdate'], DATE_FMT).date(),
         )
 
     return user
