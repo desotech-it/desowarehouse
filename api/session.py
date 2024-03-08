@@ -14,6 +14,7 @@ r = redis.Redis(host='redis', decode_responses=True, protocol=3)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# TODO: replace this key with an environment variable
 SECRET_KEY = "f2b5a308e934de7c37a179e416ae075449694bf0ac7672c23598778d6f837b09"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
