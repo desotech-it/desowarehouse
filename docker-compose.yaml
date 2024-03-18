@@ -60,6 +60,15 @@ services:
       - --loglevel
       - warning
 
+  ui:
+    depends_on: [api]
+    image: shop-ui
+    build: ui
+    restart: always
+    init: true
+    ports:
+      - 3000:3000
+
   adminer:
     depends_on: [db]
     image: adminer
