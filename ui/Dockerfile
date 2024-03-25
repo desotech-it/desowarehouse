@@ -1,5 +1,5 @@
 FROM node:20
-WORKDIR /usr/local/src/app
+WORKDIR /usr/local/src
 COPY . .
 RUN ["npm", "install"]
 CMD ["npm", "start"]
