@@ -63,7 +63,9 @@ services:
   ui:
     depends_on: [api]
     image: shop-ui
-    build: ui
+    build:
+      context: ui
+      dockerfile: Dockerfile.dev
     restart: always
     init: true
     ports:
@@ -72,6 +74,7 @@ services:
       - ./ui:/usr/local/src
     environment:
       API_URL: http://api:8080
+    command: [nodemon, -e, 'js,ejs,mjs,cjs,json']
 
   adminer:
     depends_on: [db]

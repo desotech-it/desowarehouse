@@ -1,0 +1,3 @@
+FROM shop-ui
+RUN ["npm", "install", "-g", "nodemon"]
+CMD ["nodemon"]
