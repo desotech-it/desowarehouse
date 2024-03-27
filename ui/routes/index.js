@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
+
+const utils = require('../utils');
 const FormData = require('form-data');
 
 axios.defaults.baseURL = process.env.API_URL;
@@ -9,7 +11,15 @@ router.use(express.urlencoded({ extended: true }));
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Demo' });
+  const token = req.cookies['token'];
+  utils.userIsLoggedIn(token)
+    .then(isLoggedIn => {
+      if (isLoggedIn)
+        res.render('index', { title: 'Home' });
+      else
+        res.redirect('/login');
+    })
+    .catch(err => res.render('error', { message: err, error: { status: err.status } }));
 });
 
 /* GET login page. */
