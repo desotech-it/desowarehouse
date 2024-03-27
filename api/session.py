@@ -58,7 +58,7 @@ def get_user(username: str) -> Optional[User]:
             first_name=user['first_name'],
             last_name=user['last_name'],
             mail=user['mail'],
-            birthdate=date.strptime(user['birthdate'], DATE_FMT).date(),
+            birthdate=datetime.strptime(user['birthdate'], DATE_FMT).date(),
         )
 
     return user
