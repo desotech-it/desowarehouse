@@ -7,17 +7,18 @@
 		</button>
 		<div class="collapse navbar-collapse" id="navbarNav">
 			<ul class="navbar-nav">
+				<% function addActive(menuItem, activeMenuItem) { return menuItem === activeMenuItem ? 'active' : ''; } %>
 				<li class="nav-item">
-					<a class="nav-link active" aria-current="page" href="#">Home</a>
+					<a class="nav-link <%- addActive('home', activeMenuItem) -%>" aria-current="page" href="#">Home</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#">Orders</a>
+					<a class="nav-link <%- addActive('orders', activeMenuItem) -%>" href="#">Orders</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#">Labels</a>
+					<a class="nav-link  <%- addActive('labels', activeMenuItem) -%>" href="#">Labels</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="#">Users</a>
+					<a class="nav-link <%- addActive('users', activeMenuItem) -%>" href="#">Users</a>
 				</li>
 				<!--
 				<li class="nav-item">
