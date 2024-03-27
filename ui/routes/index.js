@@ -5,8 +5,6 @@ var axios = require('axios');
 const utils = require('../utils');
 const FormData = require('form-data');
 
-axios.defaults.baseURL = process.env.API_URL;
-
 router.use(express.urlencoded({ extended: true }));
 
 /* GET home page. */

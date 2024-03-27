@@ -7,6 +7,8 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+const axios = require('axios');
+
 var app = express();
 
 // bootstrap paths
@@ -42,5 +44,8 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+axios.defaults.baseURL = process.env.API_URL;
+axios.defaults.validateStatus = status => status >= 200 && status <= 499;
 
 module.exports = app;
