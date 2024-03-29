@@ -5,6 +5,11 @@ async function userIsLoggedIn(token) {
 	return response.status === 200;
 }
 
+function redirectToLogin(res) {
+	res.redirect('/login');
+}
+
 module.exports = {
-	userIsLoggedIn
+	userIsLoggedIn,
+	redirectToLogin,
 };

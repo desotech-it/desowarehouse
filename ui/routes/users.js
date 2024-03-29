@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
+const utils = require('../utils');
 
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
@@ -12,8 +13,14 @@ router.get('/', async function (req, res, next) {
   let response = null;
   try {
     response = await axios.get('/users', { headers: { 'Authorization': auth } });
-    // res.send(response.data);
-    res.render('users', { title: 'Users', users: response.data });
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    } else if (response.status === 200) {
+      res.render('users', { title: 'Users', users: response.data });
+    } else {
+      res.render('error', { message: 'Something went wrong', error: {} });
+    }
   } catch (e) {
     res.render('error', { message: e.message, error: { status: response.status } });
   }
