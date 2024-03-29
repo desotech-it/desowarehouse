@@ -25,6 +25,16 @@ router.get('/login', function (req, res, next) {
   res.render('login', { title: 'Sign In' });
 });
 
+/* GET orders */
+router.get('/orders', function (req, res) {
+  res.render('orders', { title: 'Orders' });
+})
+
+/* GET labels */
+router.get('/labels', function (req, res) {
+  res.render('labels', { title: 'Labels' });
+})
+
 /* POST login page. */
 router.post('/login', async function (req, res, next) {
   const email = req.body.email;
