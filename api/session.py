@@ -50,6 +50,7 @@ def get_user(username: str) -> Optional[User]:
             'last_name': user.last_name,
             'mail': user.mail,
             'birthdate': user.birthdate.strftime(DATE_FMT),
+            'role': user.role,
         }
         r.hset('user:session:' + username, mapping=mapping)
     else:
@@ -59,6 +60,7 @@ def get_user(username: str) -> Optional[User]:
             last_name=user['last_name'],
             mail=user['mail'],
             birthdate=datetime.strptime(user['birthdate'], DATE_FMT).date(),
+            role=user['role'],
         )
 
     return user

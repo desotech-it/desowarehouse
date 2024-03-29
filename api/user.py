@@ -5,14 +5,14 @@ from database import name as database_name, pool
 
 READ_USERS_QUERY = 'SELECT `id`,`first_name`,`last_name`,`mail`,`birthdate` FROM `user`'
 READ_USER_BY_ID = """
-SELECT `id`, `first_name`, `last_name`, `mail`, `birthdate`
-FROM `user`
-WHERE `id`=?
+SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
+FROM user AS u LEFT JOIN user_role AS ur ON u.id = ur.user_id LEFT JOIN role AS r ON ur.role_id = r.id
+WHERE u.id = ?
 """
 READ_USER_BY_MAIL = """
-SELECT `id`, `first_name`, `last_name`, `mail`, `birthdate`
-FROM `user`
-WHERE `mail`=?
+SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
+FROM user AS u LEFT JOIN user_role AS ur ON u.id = ur.user_id LEFT JOIN role AS r ON ur.role_id = r.id
+WHERE u.mail = ?
 """
 READ_USER_CREDENTIALS = 'SELECT `mail`,`password` FROM `user` WHERE `mail`=?'
 
@@ -25,6 +25,7 @@ class User(BaseModel):
     last_name: str
     mail: str
     birthdate: date
+    role: str
 
 
 class UserCredentials(BaseModel):
@@ -55,18 +56,18 @@ class DatabaseUserRepository:
     def get(self, id):
         cur = self.connection.cursor()
         cur.execute(READ_USER_BY_ID, (id,))
-        for id, first_name, last_name, mail, birthdate in cur:
+        for id, first_name, last_name, mail, birthdate, role in cur:
             return User(
-                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate
+                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role='user' if role is None else role
             )
         return None
 
     def get_by_mail(self, mail):
         cur = self.connection.cursor()
         cur.execute(READ_USER_BY_MAIL, (mail,))
-        for id, first_name, last_name, mail, birthdate in cur:
+        for id, first_name, last_name, mail, birthdate, role in cur:
             return User(
-                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate
+                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role='user' if role is None else role
             )
         return None
 
