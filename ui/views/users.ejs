@@ -1,39 +1,41 @@
 <%- include('header') %>
 <%- include('navbar', { activeMenuItem: 'users' }) %>
 <main class="container-fluid">
-	<div class="row my-2">
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th scope="col">#</th>
-					<th scope="col">First</th>
-					<th scope="col">Last</th>
-					<th scope="col">E-mail</th>
-					<th scope="col">Birthdate</th>
-				</tr>
-			</thead>
-			<tbody>
-				<% users.forEach((user, index)=> { %>
-				<tr>
-					<th scope="row">
-						<%= index + 1 %>
-					</th>
-					<td>
-						<%= user.first_name %>
-					</td>
-					<td>
-						<%= user.last_name %>
-					</td>
-					<td>
-						<%= user.mail %>
-					</td>
-					<td>
-						<%= user.birthdate %>
-					</td>
-				</tr>
-				<% }) %>
-			</tbody>
-		</table>
+	<div class="row my-2 justify-content-center">
+		<div class="col-11">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">First</th>
+						<th scope="col">Last</th>
+						<th scope="col">E-mail</th>
+						<th scope="col">Birthdate</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% users.forEach((user, index)=> { %>
+					<tr>
+						<th scope="row">
+							<%= index + 1 %>
+						</th>
+						<td>
+							<%= user.first_name %>
+						</td>
+						<td>
+							<%= user.last_name %>
+						</td>
+						<td>
+							<%= user.mail %>
+						</td>
+						<td>
+							<%= user.birthdate %>
+						</td>
+					</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </main>
 <%- include('footer') %>
