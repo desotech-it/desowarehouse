@@ -1,19 +1,28 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 from fastapi import APIRouter, Response
 from database import name as database_name, pool
+from typing import Optional
 
-READ_USERS_QUERY = 'SELECT `id`,`first_name`,`last_name`,`mail`,`birthdate` FROM `user`'
+READ_USERS_QUERY = """
+SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
+FROM user AS u LEFT JOIN
+     user_role AS ur ON u.id = ur.user_id LEFT JOIN
+     role AS r ON r.id = ur.role_id
+"""
+
 READ_USER_BY_ID = """
 SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
 FROM user AS u LEFT JOIN user_role AS ur ON u.id = ur.user_id LEFT JOIN role AS r ON ur.role_id = r.id
 WHERE u.id = ?
 """
+
 READ_USER_BY_MAIL = """
 SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
 FROM user AS u LEFT JOIN user_role AS ur ON u.id = ur.user_id LEFT JOIN role AS r ON ur.role_id = r.id
 WHERE u.mail = ?
 """
+
 READ_USER_CREDENTIALS = 'SELECT `mail`,`password` FROM `user` WHERE `mail`=?'
 
 # TODO: implemented salted password
@@ -25,7 +34,7 @@ class User(BaseModel):
     last_name: str
     mail: str
     birthdate: date
-    role: str
+    role: Optional[str] = None
 
 
 class UserCredentials(BaseModel):
@@ -41,7 +50,7 @@ class DatabaseUserRepository:
         cur = self.connection.cursor()
         cur.execute(READ_USERS_QUERY)
         users = []
-        for id, first_name, last_name, mail, birthdate in cur:
+        for id, first_name, last_name, mail, birthdate, role in cur:
             users.append(
                 User(
                     id=id,
@@ -49,6 +58,7 @@ class DatabaseUserRepository:
                     last_name=last_name,
                     mail=mail,
                     birthdate=birthdate,
+                    role=role
                 )
             )
         return users
@@ -58,7 +68,7 @@ class DatabaseUserRepository:
         cur.execute(READ_USER_BY_ID, (id,))
         for id, first_name, last_name, mail, birthdate, role in cur:
             return User(
-                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role='user' if role is None else role
+                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
         return None
 
@@ -67,7 +77,7 @@ class DatabaseUserRepository:
         cur.execute(READ_USER_BY_MAIL, (mail,))
         for id, first_name, last_name, mail, birthdate, role in cur:
             return User(
-                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role='user' if role is None else role
+                id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
         return None
 
