@@ -3,14 +3,11 @@ from fastapi import APIRouter, Response, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pydantic import BaseModel
-from typing import Annotated, Optional
+from typing import Annotated
 import hashlib
-import redis
+import cache
 
 from user import User, user_repository
-
-# TODO: add error handling
-r = redis.Redis(host='redis', decode_responses=True, protocol=3)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -18,8 +15,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = "f2b5a308e934de7c37a179e416ae075449694bf0ac7672c23598778d6f837b09"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-DATE_FMT = '%Y-%m-%d'
 
 class Token(BaseModel):
     access_token: str
@@ -40,31 +35,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def get_user(username: str) -> Optional[User]:
-    user = r.hgetall('user:session:' + username)
-    if len(user) == 0:
-        user = user_repository.get_by_mail(username)
-        mapping = {
-            'id': user.id,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'mail': user.mail,
-            'birthdate': user.birthdate.strftime(DATE_FMT),
-            'role': user.role,
-        }
-        r.hset('user:session:' + username, mapping=mapping)
-    else:
-        user = User(
-            id=user['id'],
-            first_name=user['first_name'],
-            last_name=user['last_name'],
-            mail=user['mail'],
-            birthdate=datetime.strptime(user['birthdate'], DATE_FMT).date(),
-            role=user['role'],
-        )
-
-    return user
-
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
@@ -81,7 +51,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(token_data.username)
+    user = cache.get_user(token_data.username)
     if user is None:
         raise credentials_exception
     return user
