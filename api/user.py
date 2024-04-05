@@ -1,8 +1,13 @@
-from pydantic import BaseModel, Field
-from datetime import date
-from fastapi import APIRouter, Response
+from datetime import date, datetime, timedelta, timezone
+from fastapi import APIRouter, Response, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from pydantic import BaseModel
+from typing import Annotated, Optional
+import hashlib
+
+from cache import r
 from database import name as database_name, pool
-from typing import Optional
 
 READ_USERS_QUERY = """
 SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
@@ -25,8 +30,9 @@ WHERE u.mail = ?
 
 READ_USER_CREDENTIALS = 'SELECT `mail`,`password` FROM `user` WHERE `mail`=?'
 
-# TODO: implemented salted password
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+connection = pool.get_connection()
+connection.database = database_name
 
 class User(BaseModel):
     id: int
@@ -89,10 +95,99 @@ class DatabaseUserRepository:
             user = UserCredentials(username=mail, hashed_password=password)
         return user
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
-connection = pool.get_connection()
-connection.database = database_name
+
+class TokenData(BaseModel):
+    username: str | None = None
+
 user_repository = DatabaseUserRepository(connection)
+
+# TODO: replace this key with an environment variable
+SECRET_KEY = "f2b5a308e934de7c37a179e416ae075449694bf0ac7672c23598778d6f837b09"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+DATE_FMT = '%Y-%m-%d'
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def get_user_from_cache_or_db(username: str) -> Optional[User]:
+    user = r.hgetall('user:session:' + username)
+    if len(user) == 0:
+        user = user_repository.get_by_mail(username)
+        mapping = {
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'mail': user.mail,
+            'birthdate': user.birthdate.strftime(DATE_FMT),
+            'role': user.role,
+        }
+        r.hset('user:session:' + username, mapping=mapping)
+    else:
+        user = User(
+            id=user['id'],
+            first_name=user['first_name'],
+            last_name=user['last_name'],
+            mail=user['mail'],
+            birthdate=datetime.strptime(user['birthdate'], DATE_FMT).date(),
+            role=user['role'],
+        )
+
+    return user
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    token_data = None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = get_user_from_cache_or_db(token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+def make_token(username: str, password: str):
+    user = user_repository.get_credentials(username)
+
+    if (
+        user is None
+        or not hashlib.sha256(bytes(password, 'utf-8')).hexdigest() == user.hashed_password
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+
+    return Token(access_token=access_token, token_type="bearer")
+
 router = APIRouter()
 
 

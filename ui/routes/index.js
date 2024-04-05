@@ -43,7 +43,7 @@ router.post('/login', async function (req, res, next) {
   formData.append('username', email);
   formData.append('password', password);
   // TODO: handle errors
-  const response = await axios.post('/token', formData, { headers: formData.getHeaders() });
+  const response = await axios.post('/auth/token', formData, { headers: formData.getHeaders() });
   res.cookie('token', response.data.access_token);
   res.redirect('/');
 });
