@@ -14,12 +14,16 @@
 				<li class="nav-item">
 					<a class="nav-link<%- addActive('orders', activeMenuItem) -%>" href="/orders">Orders</a>
 				</li>
+				<% if (typeof show_labels !== 'undefined' && show_labels) { %>
 				<li class="nav-item">
 					<a class="nav-link<%- addActive('labels', activeMenuItem) -%>" href="/labels">Labels</a>
 				</li>
+				<% } %>
+				<% if (typeof show_users !== 'undefined' && show_users) { %>
 				<li class="nav-item">
 					<a class="nav-link<%- addActive('users', activeMenuItem) -%>" href="/users">Users</a>
 				</li>
+				<% } %>
 				<!--
 				<li class="nav-item">
 					<a class="nav-link disabled" aria-disabled="true">Disabled</a>

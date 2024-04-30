@@ -132,7 +132,7 @@ def get_user_from_cache_or_db(username: str) -> Optional[User]:
             'last_name': user.last_name,
             'mail': user.mail,
             'birthdate': user.birthdate.strftime(DATE_FMT),
-            'role': user.role,
+            'role': 'none' if user.role is None else user.role,
         }
         r.hset('user:session:' + username, mapping=mapping)
     else:
@@ -142,7 +142,7 @@ def get_user_from_cache_or_db(username: str) -> Optional[User]:
             last_name=user['last_name'],
             mail=user['mail'],
             birthdate=datetime.strptime(user['birthdate'], DATE_FMT).date(),
-            role=user['role'],
+            role=None if user['role'] == 'none' else user['role'],
         )
 
     return user
