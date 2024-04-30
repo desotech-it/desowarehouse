@@ -192,13 +192,23 @@ router = APIRouter()
 
 
 @router.get("/users", tags=['users'])
-def read_users():
+def read_users(current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
     users = user_repository.list()
     return users
 
 
 @router.get("/users/{id}", tags=['users'])
-def read_user(id: int, response: Response):
+def read_user(id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
     user = user_repository.get(id)
     if user is None:
         raise HTTPException(status_code=404)
