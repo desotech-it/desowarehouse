@@ -1,3 +1,37 @@
 <%- include('header') %>
 <%- include('navbar', { activeMenuItem: 'orders'}) %>
+<main class="container-fluid">
+	<div class="row my-2 justify-content-center">
+		<div class="col-11">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">ID</th>
+						<th scope="col">Datetime</th>
+						<th scope="col">Items</th>
+						<th scope="col">Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% orders.forEach(order => { %>
+					<tr>
+						<th scope="row">
+							<%= order.id %>
+						</th>
+						<td>
+							<%= order.datetime %>
+						</td>
+						<td>
+							<%= order.products.length %>
+						</td>
+						<td>
+							<%= order.status %>
+						</td>
+					</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</main>
 <%- include('footer') %>

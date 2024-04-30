@@ -26,8 +26,27 @@ router.get('/login', function (req, res, next) {
 });
 
 /* GET orders */
-router.get('/orders', function (req, res) {
-  res.render('orders', { title: 'Orders' });
+router.get('/orders', async function (req, res) {
+  const token = req.cookies['token'];
+  const auth = 'Bearer ' + token;
+  // 200 OK if token is valid and I have permissions
+  // 403 Forbidden if token is valid and I do not have permissions
+  // 500 Internal Server Error if something bad happened server side
+  let response = null;
+  try {
+    response = await axios.get('/orders', { headers: { 'Authorization': auth } });
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    } else if (response.status === 200) {
+      res.render('orders', { title: 'Orders', orders: response.data });
+    } else {
+      res.render('error', { message: 'Something went wrong', error: {} });
+    }
+  } catch (e) {
+    res.render('error', { message: e.message, error: { status: response.status } });
+  }
+  // res.render('orders', { title: 'Orders' });
 })
 
 /* GET labels */
