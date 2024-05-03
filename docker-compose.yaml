@@ -62,7 +62,7 @@ services:
 
   ui:
     depends_on: [api]
-    image: shop-ui
+    image: shop-ui-dev
     build:
       context: ui
       dockerfile: Dockerfile.dev
