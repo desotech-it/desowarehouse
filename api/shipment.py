@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, Response, status, HTTPException
 from database import name as database_name, pool
 
 READ_SHIPMENTS_QUERY = """

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, HTTPException
 from database import name as database_name, pool
 
 READ_PRODUCTS_QUERY = """
