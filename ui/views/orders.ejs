@@ -1,37 +1,45 @@
 <%- include('header') %>
 <%- include('navbar', { activeMenuItem: 'orders'}) %>
-<main class="container-fluid">
-	<div class="row my-2 justify-content-center">
-		<div class="col-11">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th scope="col">ID</th>
-						<th scope="col">Datetime</th>
-						<th scope="col">Items</th>
-						<th scope="col">Status</th>
-					</tr>
-				</thead>
-				<tbody>
-					<% orders.forEach(order => { %>
-					<tr>
-						<th scope="row">
-							<%= order.id %>
-						</th>
-						<td>
-							<%= order.datetime %>
-						</td>
-						<td>
-							<%= order.products.length %>
-						</td>
-						<td>
-							<%= order.status %>
-						</td>
-					</tr>
-					<% }) %>
-				</tbody>
-			</table>
-		</div>
-	</div>
-</main>
-<%- include('footer') %>
+<div id="accordion">
+    <% orders.forEach(order => { %>
+    <div class="card">
+      <div class="card-header" id="heading<%= order.order_id %>">
+        <h5 class="mb-0">
+          <div class="btn btn-link collapsed d-flex justify-content-around" data-toggle="collapse" data-target="#collapse<%= order.order_id %>" aria-expanded="false" aria-controls="collapse<%= order.order_id %>">
+            <span><%= order.order_id %></span><span> <%= order.datetime %></span><span> <%= order.status %></span>
+          </div>
+        </h5>
+      </div>
+      <div id="collapse<%= order.order_id %>" class="collapse" aria-labelledby="heading<%= order.order_id %>" data-parent="#accordion">
+        <div class="card-body">
+            <main class="container-fluid">
+                <div class="row my-2 justify-content-center">
+                    <div class="col-11">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">PRODUCT_ID</th>
+                                    <th scope="col">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.products.forEach(order => { %>
+                                <tr>
+                                    <th scope="row">
+                                        <%= order.product_id %>
+                                    </th>
+                                    <td>
+                                        <%= order.quantity %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <%- include('footer') %>

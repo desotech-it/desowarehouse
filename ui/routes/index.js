@@ -27,14 +27,27 @@ router.get('/login', function (req, res, next) {
 
 /* GET orders */
 router.get('/orders', async function (req, res) {
+  
   const token = req.cookies['token'];
   const auth = 'Bearer ' + token;
   // 200 OK if token is valid and I have permissions
   // 403 Forbidden if token is valid and I do not have permissions
   // 500 Internal Server Error if something bad happened server side
   let response = null;
+  let id = null;
+  //call to get user data
+  try{
+    response = await axios.get('auth/me', {headers: {'Authorization': auth}});
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    }
+    id=response.data['id'];
+  }catch(e){
+    res.render('error', { message: e.message, error: { status: response.status } });
+  }
   try {
-    response = await axios.get('/orders', { headers: { 'Authorization': auth } });
+    response = await axios.get('/users/'+id+'/orders', { headers: { 'Authorization': auth } });
     if (response.status === 401) {
       utils.redirectToLogin(res);
       return;

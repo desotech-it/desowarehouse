@@ -52,3 +52,15 @@ INSERT INTO `user_role` (`user_id`, `role_id`)
 VALUES
 	(3, 1),
 	(2, 2);
+
+INSERT INTO `order` (`id`,`user_id`)
+VALUES 
+	(1,1),
+	(2,2),
+	(3,3);
+
+INSERT INTO `order_product` (`order_id`,`product_id`,`quantity`)
+VALUES
+	(1,1,1),
+	(2,2,1),
+	(3,3,1);
