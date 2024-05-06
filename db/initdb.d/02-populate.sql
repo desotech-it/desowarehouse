@@ -30,11 +30,11 @@ VALUES
 	(9, FLOOR(RAND()*(10)+1)),
 	(10, FLOOR(RAND()*(10)+1));
 
-INSERT INTO `order` (`datetime`)
+INSERT INTO `order` (`datetime`, `user_id`)
 VALUES
-	('2024-01-18'),
-	('2023-12-31'),
-	('2022-05-11');
+	('2024-01-18', 1),
+	('2023-12-31', 2),
+	('2022-05-11', 3);
 
 INSERT INTO `order_product` (`order_id`, `product_id`, `quantity`)
 VALUES
@@ -52,15 +52,3 @@ INSERT INTO `user_role` (`user_id`, `role_id`)
 VALUES
 	(3, 1),
 	(2, 2);
-
-INSERT INTO `order` (`id`,`user_id`)
-VALUES 
-	(1,1),
-	(2,2),
-	(3,3);
-
-INSERT INTO `order_product` (`order_id`,`product_id`,`quantity`)
-VALUES
-	(1,1,1),
-	(2,2,1),
-	(3,3,1);
