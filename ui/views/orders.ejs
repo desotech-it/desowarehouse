@@ -1,12 +1,59 @@
 <%- include('header') %>
 <%- include('navbar', { activeMenuItem: 'orders'}) %>
+<div class="card-header">
+  <table class="table">
+    <tr class="d-flex justify-content-around">
+  <th>ID</th>
+  <th>TIME</th>
+  <th>STATUS</th>
+  <th></th>
+  </tr>
+</table>
+</div>
 <div id="accordion">
     <% orders.forEach(order => { %>
     <div class="card">
       <div class="card-header" id="heading<%= order.order_id %>">
         <h5 class="mb-0">
           <div class="btn btn-link collapsed d-flex justify-content-around" data-toggle="collapse" data-target="#collapse<%= order.order_id %>" aria-expanded="false" aria-controls="collapse<%= order.order_id %>">
-            <span><%= order.order_id %></span><span> <%= order.datetime %></span><span> <%= order.status %></span>
+            <span class="id"><%= order.order_id %></span>
+            <span class="datetime"> <%= order.datetime %>
+            </span><span class="status"> <%= order.status %></span>
+            <span>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        cambia status
+                      </button>
+                      
+                      <!-- Modal -->
+                      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="alert alert-primary" role="alert" style="display: none;">
+                          Order status changed!
+                        </div>
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              
+                              <h1 class="modal-title fs-5" id="exampleModalLabel">Change order status</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              NOT SHIPPED<input type="radio" name="status" value="NOT_SHIPPED">
+                              SHIPPED<input type="radio" name="status" value="SHIPPED">
+                              DENIED<input type="radio" name="status" value="DENIED"> 
+                            </div>
+                            <div>
+                              ORDER ID : <span class="order_id"><%= order.order_id %></span>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-primary submit">Save changes</button>
+                            </div>
+                          </form>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+            </span>
           </div>
         </h5>
       </div>
@@ -19,7 +66,9 @@
                             <thead>
                                 <tr>
                                     <th scope="col">PRODUCT_ID</th>
+                                    <th scope="col">Name</th>
                                     <th scope="col">Quantity</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
@@ -28,6 +77,9 @@
                                     <th scope="row">
                                         <%= order.product_id %>
                                     </th>
+                                    <td>
+                                        <%= order.name %>
+                                    </td>
                                     <td>
                                         <%= order.quantity %>
                                     </td>
@@ -41,5 +93,30 @@
       </div>
     </div>
     <% }) %>
+    
   </div>
+  <script>
+    for(const [index, submit] of document.querySelectorAll('.submit').entries()){
+    submit.onclick=()=>{
+      sendData(index)
+    }
+  }
+    async function sendData(index){
+      let id = document.querySelectorAll('.order_id')[index].textContent;
+      let status = document.querySelectorAll('.modal-body')[index].querySelector('input[name="status"]:checked').value;
+      console.log(status)
+      let res = await fetch("/modifyOrder?id="+id+"&status="+status, {
+        method: "PATCH"
+      })
+      let data = await res.json();
+      console.log(data)
+      if(data['message']=="Successful"){
+        document.querySelector('.alert').style.display="block";
+        document.querySelectorAll('.status')[index].textContent=data['status'];
+      }
+    }
+    document.querySelector('.btn-close').onclick=()=>{
+      document.querySelector('.alert').style.display="none";
+    }
+  </script>
   <%- include('footer') %>
