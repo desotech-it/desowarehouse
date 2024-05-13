@@ -1,3 +1,4 @@
+
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
 	<div class="container-fluid">
 		<a class="navbar-brand" href="/">Shop</a>
@@ -14,6 +15,11 @@
 				<li class="nav-item">
 					<a class="nav-link<%- addActive('orders', activeMenuItem) -%>" href="/orders">Orders</a>
 				</li>
+				<% if (typeof show_orders !== 'undefined' && show_orders) { %>
+					<li class="nav-item">
+						<a class="nav-link<%- addActive('allOrders', activeMenuItem) -%>" href="/allOrders">All Orders</a>
+					</li>
+					<% } %>
 				<% if (typeof show_labels !== 'undefined' && show_labels) { %>
 				<li class="nav-item">
 					<a class="nav-link<%- addActive('labels', activeMenuItem) -%>" href="/labels">Labels</a>
@@ -24,6 +30,9 @@
 					<a class="nav-link<%- addActive('users', activeMenuItem) -%>" href="/users">Users</a>
 				</li>
 				<% } %>
+				<li class="nav-item">
+					<a class="nav-link" id="logout" href="">Logout</a>
+				</li>
 				<!--
 				<li class="nav-item">
 					<a class="nav-link disabled" aria-disabled="true">Disabled</a>
@@ -33,3 +42,13 @@
 		</div>
 	</div>
 </nav>
+<script>
+	function delete_cookie(name) {
+  document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+document.querySelector('#logout').onclick=()=>{
+	delete_cookie('token');
+	window.location.reload();
+
+}
+</script>
