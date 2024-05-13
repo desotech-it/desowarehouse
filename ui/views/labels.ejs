@@ -1,3 +1,41 @@
 <%- include('header') %>
-<%- include('navbar', { activeMenuItem: 'labels'}) %>
+<%- include('navbar', { activeMenuItem: 'users' }) %>
+<main class="container-fluid">
+	<div class="row my-2 justify-content-center">
+		<div class="col-11">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">ID</th>
+						<th scope="col">ORDER ID</th>
+						<th scope="col">DATETIME</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% shipments.forEach((shipment, index)=> { %>
+					<tr>
+						<th scope="row">
+							<%= index + 1 %>
+						</th>
+						<td>
+							<%= shipment.id %>
+						</td>
+						<td>
+							<%= shipment.order_id %>
+						</td>
+						<td>
+							<%= shipment.datetime %>
+						</td>
+						<td>
+							<a href="/pdf?datetime=<%= shipment.datetime %>&order_id=<%= shipment.order_id %>&id=<%= shipment.id %>"><button >DOWNLOAD PDF</button></a>
+						</td>
+					</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</main>
 <%- include('footer') %>
