@@ -5,6 +5,11 @@ async function userIsLoggedIn(token) {
 	return response.status === 200;
 }
 
+async function getUserRole(token){
+	const response = await axios.get('/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+	return response.data['role'];
+}
+
 function redirectToLogin(res) {
 	res.redirect('/login');
 }
@@ -12,4 +17,5 @@ function redirectToLogin(res) {
 module.exports = {
 	userIsLoggedIn,
 	redirectToLogin,
+	getUserRole,
 };
