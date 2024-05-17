@@ -2,7 +2,15 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 const utils = require('../utils');
-
+async function getMetadata(token, title){
+  const role = await utils.getUserRole(token);
+  if(role=="admin")
+    return { title: title, show_labels: false, show_orders: true, show_users: true, change_status: true};
+  else if(role=="warehouse")
+    return {title: title, show_labels: true, show_orders: false, show_users: false, change_status: true}
+  else
+    return {title: title, show_labels: false, show_orders: false, show_users: false, change_status: false}
+  }
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
   const token = req.cookies['token'];
@@ -17,7 +25,8 @@ router.get('/', async function (req, res, next) {
       utils.redirectToLogin(res);
       return;
     } else if (response.status === 200) {
-      res.render('users', { title: 'Users', users: response.data });
+      const metadata = await getMetadata(token, "Users");
+      res.render('users', Object.assign({}, metadata, {users: response.data }));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });
     }
