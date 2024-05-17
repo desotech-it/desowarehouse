@@ -10,11 +10,11 @@ router.use(express.urlencoded({ extended: true }));
 async function getMetadata(token, title){
   const role = await utils.getUserRole(token);
   if(role=="admin")
-    return { title: title, show_labels: false, show_orders: true, show_users: true};
+    return { title: title, show_labels: false, show_orders: true, show_users: true, change_status: true};
   else if(role=="warehouse")
-    return {title: title, show_labels: true, show_orders: false, show_users: false}
+    return {title: title, show_labels: true, show_orders: false, show_users: false, change_status: true}
   else
-    return {title: title, show_labels: false, show_orders: false, show_users: false}
+    return {title: title, show_labels: false, show_orders: false, show_users: false, change_status: false}
   }
 
 /* GET home page. */
@@ -64,7 +64,8 @@ router.get('/allOrders', async function (req, res) {
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, "Orders");
-      res.render('orders', Object.assign({}, metadata, {orders:response.data}));
+      console.log(response.data)
+      res.render('allOrders', Object.assign({}, metadata, {orders:response.data}));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });
     }
