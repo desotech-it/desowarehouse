@@ -82,6 +82,8 @@ class DatabaseUserRepository:
         cur = self.connection.cursor()
         cur.execute(READ_USER_BY_MAIL, (mail,))
         for id, first_name, last_name, mail, birthdate, role in cur:
+            print('piipo')
+            print(id, first_name, last_name, mail, birthdate, role)
             return User(
                 id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
@@ -144,7 +146,6 @@ def get_user_from_cache_or_db(username: str) -> Optional[User]:
             birthdate=datetime.strptime(user['birthdate'], DATE_FMT).date(),
             role=None if user['role'] == 'none' else user['role'],
         )
-
     return user
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
