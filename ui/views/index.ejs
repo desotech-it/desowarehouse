@@ -1,5 +1,5 @@
 <%- include('header') -%>
-<%- include('navbar', { activeMenuItem: 'home' }) -%>
+<%- include('navbar', { activeMenuItem: 'home', show_labels: typeof show_labels !== 'undefined' && show_labels}) -%>
 <div class="container">
   <div class="row">
     <div class="col">
