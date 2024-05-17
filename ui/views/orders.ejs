@@ -3,128 +3,65 @@
 <div class="card-header">
   <table class="table">
     <tr class="d-flex justify-content-around">
-  <th>ID</th>
-  <th>TIME</th>
-  <th>STATUS</th>
-  <% if (typeof change_status !== 'undefined' && change_status) { %>
-  <th></th>
-  <% } %>
-  </tr>
-</table>
+      <th>ID</th>
+      <th>TIME</th>
+      <th>STATUS</th>
+    </tr>
+  </table>
 </div>
 <div id="accordion">
-    <% orders.forEach(order => { %>
-    <div class="card">
-      <div class="card-header" id="heading<%= order.order_id %>">
-        <h5 class="mb-0">
-          <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none" data-toggle="collapse" data-target="#collapse<%= order.order_id %>" aria-expanded="false" aria-controls="collapse<%= order.order_id %>">
-            <span class="id"><%= order.order_id %></span>
-            <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1] %></span>
-            <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
-            <% if (typeof change_status !== 'undefined' && change_status) { %>
-            <span>
-                <td>
-                    <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                        Change status
-                      </button>
-                      
-                      <!-- Modal -->
-                      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="alert alert-primary" role="alert" style="display: none;">
-                          Order status changed!
-                        </div>
-                        <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              
-                              <h1 class="modal-title fs-5" id="exampleModalLabel">Change order status</h1>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body d-flex justify-content-center align-items-center flex-column">
-                              <div class="d-flex justify-content-center flex-column align-items-start">
-                              <div><input class="form-check-input" type="radio" name="status" value="NOT_SHIPPED"> NOT SHIPPED</div><br/>
-                              <div><input class="form-check-input" type="radio" name="status" value="SHIPPED"> SHIPPED</div><br/>
-                              <div><input class="form-check-input" type="radio" name="status" value="DENIED"> DENIED</div><br/> 
-                              <div>
-                                ORDER ID : <span class="order_id"><%= order.order_id %></span>
-                              </div>
-                            </div>
-                            </div>
-                            
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-primary submit">Save changes</button>
-                            </div>
-                          </form>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-            </span>
-            <% } %>
-          </div>
-        </h5>
-      </div>
+  <% orders.forEach(order => { %>
+  <div class="card">
+    <div class="card-header" id="heading<%= order.order_id %>">
+      <h5 class="mb-0">
+        <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
+          data-toggle="collapse" data-target="#collapse<%= order.order_id %>" aria-expanded="false"
+          aria-controls="collapse<%= order.order_id %>">
+          <span class="id"><%= order.order_id %></span>
+          <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1] %></span>
+          <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
+        </div>
+      </h5>
+    </div>
 
-      <div id="collapse<%= order.order_id %>" class="collapse" aria-labelledby="heading<%= order.order_id %>" data-parent="#accordion">
-        <div class="card-body">
-            <main class="container-fluid">
-                <div class="row my-2 justify-content-center">
-                    <div class="col-11">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">PRODUCT_ID</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Quantity</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% order.products.forEach(order => { %>
-                                <tr>
-                                    <th scope="row">
-                                        <%= order.product_id %>
-                                    </th>
-                                    <td>
-                                        <%= order.name %>
-                                    </td>
-                                    <td>
-                                        <%= order.quantity %>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>        </div>
+    <div id="collapse<%= order.order_id %>" class="collapse" aria-labelledby="heading<%= order.order_id %>"
+      data-parent="#accordion">
+      <div class="card-body">
+        <main class="container-fluid">
+          <div class="row my-2 justify-content-center">
+            <div class="col-11">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">PRODUCT_ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Quantity</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <% order.products.forEach(order => { %>
+                  <tr>
+                    <th scope="row">
+                      <%= order.product_id %>
+                    </th>
+                    <td>
+                      <%= order.name %>
+                    </td>
+                    <td>
+                      <%= order.quantity %>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
-    <% }) %>
-    
   </div>
-  <script>
-    for(const [index, submit] of document.querySelectorAll('.submit').entries()){
-    submit.onclick=()=>{
-      sendData(index)
-    }
-  }
-    async function sendData(index){
-      let id = document.querySelectorAll('.order_id')[index].textContent;
-      let status = document.querySelectorAll('.modal-body')[index].querySelector('input[name="status"]:checked').value;
-      console.log(status)
-      let res = await fetch("/modifyOrder?id="+id+"&status="+status, {
-        method: "PATCH"
-      })
-      let data = await res.json();
-      console.log(data)
-      if(data['message']=="Successful"){
-        document.querySelector('.alert').style.display="block";
-        document.querySelectorAll('.status')[index].textContent=data['status'];
-      }
-    }
-    document.querySelector('.btn-close').onclick=()=>{
-      document.querySelector('.alert').style.display="none";
-    }
-  </script>
-  <%- include('footer') %>
+  <% }) %>
+
+</div>
+<%- include('footer') %>
