@@ -15,7 +15,7 @@
     <div class="card-header" id="heading<%= order.order_id %>">
       <h5 class="mb-0">
         <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
-          data-toggle="collapse" data-target="#collapse<%= order.order_id %>" aria-expanded="false"
+          data-bs-toggle="collapse" data-bs-target="#collapse<%= order.order_id %>" aria-expanded="false"
           aria-controls="collapse<%= order.order_id %>">
           <span class="id"><%= order.order_id %></span>
           <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1] %></span>
@@ -25,7 +25,7 @@
     </div>
 
     <div id="collapse<%= order.order_id %>" class="collapse" aria-labelledby="heading<%= order.order_id %>"
-      data-parent="#accordion">
+      data-bs-parent="#accordion">
       <div class="card-body">
         <main class="container-fluid">
           <div class="row my-2 justify-content-center">
