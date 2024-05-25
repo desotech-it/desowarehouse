@@ -13,8 +13,16 @@ var app = express();
 
 // bootstrap paths
 app.use('/stylesheets', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css')))
+app.use('/stylesheets', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/css')))
+app.use('/stylesheets', express.static(path.join(__dirname, 'node_modules/startbootstrap-sb-admin-2/css')))
+
 app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js')))
 app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/jquery/dist')))
+app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/jquery.easing')))
+app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/startbootstrap-sb-admin-2/js')))
+
+app.use('/fonts', express.static(path.join(__dirname, 'node_modules/@fontsource')))
+app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts')))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

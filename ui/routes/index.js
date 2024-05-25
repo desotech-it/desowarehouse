@@ -36,7 +36,6 @@ router.get('/', async function (req, res, next) {
     .then(async (isLoggedIn) => {
       if (isLoggedIn){
         const metadata = await getMetadata(token, "Home");
-        console.log(response.data)
         res.render('index', Object.assign({}, metadata, {user: response.data }));
       }
       else
@@ -78,7 +77,6 @@ router.get('/allOrders', async function (req, res) {
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, "Orders");
-      console.log(response.data)
       res.render('allOrders', Object.assign({}, metadata, {orders:response.data}));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });

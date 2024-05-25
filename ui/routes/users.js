@@ -26,7 +26,6 @@ router.get('/', async function (req, res, next) {
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, "Users");
-      console.log(response.data)
       res.render('users', Object.assign({}, metadata, {users: response.data }));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });

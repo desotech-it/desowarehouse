@@ -111,12 +111,10 @@
     async function sendData(index){
       let id = document.querySelectorAll('.order_id')[index].textContent;
       let status = document.querySelectorAll('.modal-body')[index].querySelector('input[name="status"]:checked').value;
-      console.log(status)
       let res = await fetch("/modifyOrder?id="+id+"&status="+status, {
         method: "PATCH"
       })
       let data = await res.json();
-      console.log(data)
       if(data['message']=="Successful"){
         document.querySelector('.alert').style.display="block";
         document.querySelectorAll('.status')[index].textContent=data['status'];
