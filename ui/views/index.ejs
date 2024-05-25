@@ -1,14 +1,23 @@
 <%- include('header') -%>
-<%- include('navbar', { activeMenuItem: 'home', show_labels: typeof show_labels !== 'undefined' && show_labels}) -%>
+<%- include('navbar', { activeMenuItem: 'home', show_labels: typeof show_labels !== 'undefined' && show_labels, role:role}) -%>
 <div class="container">
   <div class="row">
     <div class="col">
-      <h1>
-        <%= title %>
-      </h1>
-      <p>Welcome to <%= title %>
-      </p>
-    </div>
+      <div class="d-flex flex-column justify-content-around" style="min-height: 80vh;">
+      <h2>Hi <%= user.first_name %> <%= user.last_name %> 
+      </h2>
+    <div>
+    <h5>
+      Mail: <%= user.mail %>
+    </h5>
+    <h5>
+      Birthdate: <%= user.birthdate %>
+    </h5>
+    <h5>
+      Role: <%= user.role %>
+    </h5>
+  </div>
+  </div>
   </div>
 </div>
 <%- include('footer') -%>

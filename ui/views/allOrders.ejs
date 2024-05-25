@@ -1,5 +1,5 @@
 <%- include('header') %>
-<%- include('navbar', { activeMenuItem: 'allOrders'}) %>
+<%- include('navbar', { activeMenuItem: 'allOrders', role:role}) %>
 <div class="card-header">
   <table class="table">
     <tr class="d-flex justify-content-around">
@@ -17,10 +17,11 @@
     <div class="card">
       <div class="card-header" id="heading<%= order.id %>">
         <h5 class="mb-0">
-          <div class="btn btn-link collapsed d-flex justify-content-around" data-toggle="collapse" data-target="#collapse<%= order.id %>" aria-expanded="false" aria-controls="collapse<%= order.id %>">
-            <span class="id"><%= order.id %></span>
-            <span class="datetime"> <%= order.datetime %></span>
-            <span class="status"> <%= order.status %></span>
+         <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
+          data-bs-toggle="collapse" data-bs-target="#collapse<%= order.id %>" aria-expanded="false"
+          aria-controls="collapse<%= order.order_id %>">            <span class="id"><%= order.id %></span>
+            <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1]  %></span>
+            <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
             <% if (typeof change_status !== 'undefined' && change_status) { %>
             <span>
                 <td>
@@ -40,13 +41,14 @@
                               <h1 class="modal-title fs-5" id="exampleModalLabel">Change order status</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                              NOT SHIPPED<input type="radio" name="status" value="NOT_SHIPPED">
-                              SHIPPED<input type="radio" name="status" value="SHIPPED">
-                              DENIED<input type="radio" name="status" value="DENIED"> 
-                            </div>
-                            <div>
-                              ORDER ID : <span class="order_id"><%= order.id %></span>
+                            <div class="modal-body d-flex justify-content-center align-items-center flex-column">
+                              <div class="d-flex justify-content-center flex-column align-items-start">
+                                <div><input class="form-check-input" type="radio" name="status" value="NOT_SHIPPED"> NOT SHIPPED</div><br/>
+                                <div><input class="form-check-input" type="radio" name="status" value="SHIPPED"> SHIPPED</div><br/>
+                                <div><input class="form-check-input" type="radio" name="status" value="DENIED"> DENIED</div><br/> 
+                                <div>
+                                  ORDER ID : <span class="order_id"><%= order.id %></span>
+                                </div>
                             </div>
                             <div class="modal-footer">
                               <button type="button" class="btn btn-primary submit">Save changes</button>

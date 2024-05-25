@@ -205,7 +205,7 @@ def read_users(current_user: Annotated[User, Depends(get_current_user)]):
 
 @router.get("/users/{id}", tags=['users'])
 def read_user(id: int, current_user: Annotated[User, Depends(get_current_user)]):
-    if current_user.role != 'admin':
+    if current_user.role == None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Insufficient permissions",

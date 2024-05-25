@@ -1,5 +1,9 @@
 <%- include('header') %>
-<%- include('navbar', { activeMenuItem: 'orders'}) %>
+<%- include('navbar', { activeMenuItem: 'orders', role:role}) %>
+<h3 class="text-center">FILTRA</h3>
+<div class="input-group mb-3">
+  <input type="text" id="inputFilter" class="form-control" placeholder="Insert an Id, a Datetime or a Status" aria-label="Recipient's username" aria-describedby="button-addon2" onkeyup="filter()">
+</div>
 <div class="card-header">
   <table class="table">
     <tr class="d-flex justify-content-around">
@@ -18,8 +22,8 @@
           data-bs-toggle="collapse" data-bs-target="#collapse<%= order.order_id %>" aria-expanded="false"
           aria-controls="collapse<%= order.order_id %>">
           <span class="id"><%= order.order_id %></span>
-          <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1] %></span>
-          <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
+          <span class="datetime"><%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1] %></span>
+          <span class="status"><%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
         </div>
       </h5>
     </div>
@@ -64,4 +68,27 @@
   <% }) %>
 
 </div>
+<script>
+  function filter(){
+    const cards = document.querySelectorAll('.card') 
+    const id = document.querySelectorAll('.id')
+    const datetime = document.querySelectorAll('.datetime')
+    const status = document.querySelectorAll('.status')
+    let input = document.querySelector('#inputFilter')
+    if(input.value==""){
+      for(let i=0;i<cards.length;i++){
+        cards[i].style.display="block"
+      }
+    }else{
+      for(let j=0;j<cards.length;j++){
+        cards[j].style.display="none"
+      }
+    for(let i=0;i<cards.length;i++){
+      if(id[i].textContent==input.value || datetime[i].textContent==input.value || status[i].textContent==input.value){
+        cards[i].style.display="block"
+      }
+    }
+  }
+}
+</script>
 <%- include('footer') %>

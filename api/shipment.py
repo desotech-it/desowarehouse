@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from datetime import datetime
-from fastapi import APIRouter, Response, status, HTTPException
+from fastapi import APIRouter, Response, status, HTTPException, Depends
 from database import name as database_name, pool
-
+from typing import Annotated
+from order import get_current_user, User
 READ_SHIPMENTS_QUERY = """
 SELECT id, order_id, datetime
 FROM `shipment`
@@ -57,13 +58,25 @@ router = APIRouter()
 
 
 @router.get("/shipments")
-def read_users():
+def read_users(current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role==None:
+         raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     shipments = shipments_repository.list()
     return shipments
 
 
 @router.get("/shipments/{id}")
-def read_user(id: int, response: Response):
+def read_user(id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role==None:
+         raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     shipment = shipments_repository.get(id)
     if shipment is None:
         raise HTTPException(status_code=404)
@@ -76,7 +89,7 @@ class ShipmentModel(BaseModel):
 
 
 @router.post("/shipments", status_code=status.HTTP_201_CREATED)
-def create_shipment(model: ShipmentModel, response: Response, status_code=status.HTTP_201_CREATED):
+def create_shipment(model: ShipmentModel,status_code=status.HTTP_201_CREATED, ):
     try:
         shipment = shipments_repository.create(model.id)
         return shipment

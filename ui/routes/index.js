@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 var PDFDocument = require('pdfkit');
-
+var fs = require('fs');
 const utils = require('../utils');
 const FormData = require('form-data');
 
@@ -10,21 +10,35 @@ router.use(express.urlencoded({ extended: true }));
 async function getMetadata(token, title){
   const role = await utils.getUserRole(token);
   if(role=="admin")
-    return { title: title, show_labels: false, show_orders: true, show_users: true, change_status: true};
+    return { title: title, show_labels: false, show_orders: true, show_users: true, change_status: true, role: role};
   else if(role=="warehouse")
-    return {title: title, show_labels: true, show_orders: false, show_users: false, change_status: true}
+    return {title: title, show_labels: true, show_orders: true, show_users: false, change_status: true, role:role}
   else
-    return {title: title, show_labels: false, show_orders: false, show_users: false, change_status: false}
+    return {title: title, show_labels: false, show_orders: false, show_users: false, change_status: false, role: role}
   }
 
 /* GET home page. */
-router.get('/', function (req, res, next) {
+router.get('/', async function (req, res, next) {
+  let userData=null;
   const token = req.cookies['token'];
-  
+  const auth = 'Bearer ' + token;
+  try{
+    response = await axios.get('auth/me', {headers: {'Authorization': auth}});
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    }
+    userData = response.data;
+  }catch(e){
+    res.render('error', { message: e.message, error: { status: response.status } });
+  }
   utils.userIsLoggedIn(token)
     .then(async (isLoggedIn) => {
-      if (isLoggedIn)
-        res.render('index', await getMetadata(token, 'Home'));
+      if (isLoggedIn){
+        const metadata = await getMetadata(token, "Home");
+        console.log(response.data)
+        res.render('index', Object.assign({}, metadata, {user: response.data }));
+      }
       else
         res.redirect('/login');
     })
@@ -165,10 +179,31 @@ router.patch('/modifyOrder', async function (req, res, next){
 });
 module.exports = router;
 
-router.get('/pdf', function (req, res, next){
+router.get('/pdf', async function (req, res, next){
+  let user = null;
   const id = req.query.id;
   const datetime = req.query.datetime;
   const order_id = req.query.order_id;
+  const token = req.cookies['token'];
+  const auth = 'Bearer ' + token;
+  try{
+    response = await axios.get('/orders/'+order_id, {headers: {'Authorization': auth}});
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    }
+    orderData=response.data;
+    const userId = orderData.user_id;
+    response = await axios.get('/users/'+userId, {headers: {'Authorization': auth}});
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    }
+    user=response.data;
+  }catch(e){
+    res.render('error', { message: e.message, error: { status: response.status } });
+  }
+  
   var myDoc = new PDFDocument({bufferPages: true});
 
 let buffers = [];
@@ -184,16 +219,33 @@ myDoc.on('end', () => {
 
 });
 
-myDoc.font('Times-Roman')
-     .fontSize(26)
-     .text(`SHIPMENT DETAILS`);
+myDoc
+    .fontSize(16)
+    .text(`SHIPMENT DETAILS`, 50, 75, {align: "left"})
 
 myDoc
-    .fontSize(15)
+    .fontSize(12)
     .text(`
-    SHIPMENT ID: ${id}\n\n
-    ORDER ID: ${order_id}\n\n
-    DATETIME: ${datetime}
-    `);
+    Shipment Id: ${id}\n\n
+    Order Id: ${order_id}\n\n
+    Datetime: ${datetime.replace('T', ' ')}\n\n
+    `, 50, 100, {align: 'left'});
+
+myDoc
+    .fontSize(16)
+    .text(`SHIP TO:`, 50, 75, {align: "right"})
+
+myDoc
+    .fontSize(12)
+    .text(`
+    First Name: ${user.first_name}\n\n
+    Last Name: ${user.last_name}\n\n
+    Mail: ${user.mail}\n\n
+    Birthdate: ${user.birthdate}\n\n
+    `,50, 100, {align: 'right'});
+
+
+myDoc.image('barcode.png', {fit: [400, 150], align: 'center'});
+
 myDoc.end();
 });

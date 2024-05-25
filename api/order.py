@@ -163,13 +163,25 @@ router = APIRouter()
 
 
 @router.get("/orders")
-def read_orders():
+def read_orders(current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role==None:
+         raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     orders = order_repository.list()
     return orders
 
 
 @router.get("/orders/{id}")
-def read_order(id: int):
+def read_order(id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role==None:
+         raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         order = order_repository.get(id)
         return order
@@ -183,7 +195,13 @@ class OrderModel(BaseModel):
 
 
 @router.post("/orders")
-def create_order(model: OrderModel):
+def create_order(model: OrderModel, current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role==None:
+         raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     order = order_repository.create(model.product_id, model.quantity)
     return order
 
@@ -199,7 +217,13 @@ def modify_order(id:int, status: str):
     
 
 @router.delete("/orders/{id}")
-def delete_order(id: int):
+def delete_order(id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    if current_user.role==None:
+         raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         order_repository.delete(id)
     except:

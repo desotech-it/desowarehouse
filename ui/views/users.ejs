@@ -1,5 +1,5 @@
 <%- include('header') %>
-<%- include('navbar', { activeMenuItem: 'users' }) %>
+<%- include('navbar', { activeMenuItem: 'users', role:role}) %>
 <main class="container-fluid">
 	<div class="row my-2 justify-content-center">
 		<div class="col-11">
@@ -10,6 +10,7 @@
 						<th scope="col">First</th>
 						<th scope="col">Last</th>
 						<th scope="col">E-mail</th>
+						<th scope="col">Role</th>
 						<th scope="col">Birthdate</th>
 					</tr>
 				</thead>
@@ -27,6 +28,9 @@
 						</td>
 						<td>
 							<%= user.mail %>
+						</td>
+						<td>
+							<%= user.role %>
 						</td>
 						<td>
 							<%= user.birthdate %>
