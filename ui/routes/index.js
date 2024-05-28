@@ -182,14 +182,19 @@ router.post('/login', async function (req, res, next) {
 });
 
 router.patch('/modifyOrder', async function (req, res, next) {
-  const status = req.query.status;
-  const id = req.query.id;
+  // TODO: verify user can perform the requested action
   const token = req.cookies['token'];
-  const auth = 'Bearer ' + token;
+  const body = req.body;
+  const id = body.id;
+  const status = body.status;
   try {
     if (status == "SHIPPED")
-      await axios.post('/shipments', { id: id })
-    let response = await axios.patch('/orders/' + id + '?status=' + status);
+      await axios.post('/shipments', { id: id });
+    let response = await axios.patch(
+      '/orders/' + id,
+      { status: status },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     if (response.status == 400)
       res.render('error', { message: 'Something went wrong', error: {} });
     res.json({ "message": "Successful", "status": status })

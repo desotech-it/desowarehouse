@@ -18,7 +18,7 @@ insert into `order` values ();
 insert into order_product values ((select max(id) from `order`), ?, ?);
 """
 DELETE_ORDER_BY_ID = """
-DELETE FROM `order` where id=(?)
+DELETE FROM `order` where id=?
 """
 READ_ORDERS_BY_USER="""
 select order_id, product_id, name, quantity, datetime, status from `order` join `order_product` on order.id = order_product.order_id join user on user.id = order.user_id join product on order_product.product_id=product.id where user.id=(?)"""
@@ -26,8 +26,9 @@ READ_ORDER_BY_USERS_AND_ORDER_ID="""
 select order_id, product_id, name, quantity, datetime, status from `order` join `order_product` on order.id = order_product.order_id join user on user.id = order.user_id join product on order.id=product.id where user.id=(?) and order_id=(?);"""
 
 MODIFY_ORDER = """
-UPDATE `order` SET status=(?) where id=(?);
+UPDATE `order` SET status=? where id=?;
 """
+
 class Order(BaseModel):
     id: int
     user_id: int
@@ -136,7 +137,7 @@ class DatabaseOrderRepository:
         for order_id in orders:
             total.append({"order_id":order_id, "products":orders[order_id]["products"], "datetime":orders[order_id]["datetime"], "status":orders[order_id]["status"]})
         return total
-    
+
     def get_by_user_order(self, user_id, order_id):
         cur = self.connection.cursor()
         cur.execute(READ_ORDER_BY_USERS_AND_ORDER_ID, (user_id,order_id))
@@ -153,14 +154,12 @@ class DatabaseOrderRepository:
         cur = self.connection.cursor()
         cur.execute(MODIFY_ORDER, (status, id))
         self.connection.commit()
-        print(cur.rowcount, "record(s) affected")
-        return 
+        return
 
 connection = pool.get_connection()
 connection.database = database_name
 order_repository = DatabaseOrderRepository(connection)
 router = APIRouter()
-
 
 @router.get("/orders")
 def read_orders(current_user: Annotated[User, Depends(get_current_user)]):
@@ -193,6 +192,8 @@ class OrderModel(BaseModel):
     product_id: int
     quantity: int
 
+class StatusModel(BaseModel):
+    status: str
 
 @router.post("/orders")
 def create_order(model: OrderModel, current_user: Annotated[User, Depends(get_current_user)]):
@@ -206,15 +207,15 @@ def create_order(model: OrderModel, current_user: Annotated[User, Depends(get_cu
     return order
 
 @router.patch("/orders/{id}")
-def modify_order(id:int, status: str):
+def modify_order(id:int, status: StatusModel):
     try:
-        order_repository.modify(status, id)
+        order_repository.modify(id, status.status)
     except:
          raise HTTPException(
         status_code=400,
         detail="Invalid request"
          )
-    
+
 
 @router.delete("/orders/{id}")
 def delete_order(id: int, current_user: Annotated[User, Depends(get_current_user)]):

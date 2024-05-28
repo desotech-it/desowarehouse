@@ -8,153 +8,167 @@
 <div class="card-header">
   <table class="table">
     <tr class="d-flex justify-content-around">
-  <th style="transform: translateX(-20px);">ID</th>
-  <th style="transform: translateX(-30px);">TIME</th>
-  <th style="transform: translateX(-20px);">STATUS</th>
-  <% if (typeof change_status !== 'undefined' && change_status) { %>
-  <th></th>
-  <% } %>
-  </tr>
-</table>
+      <th style="transform: translateX(-20px);">ID</th>
+      <th style="transform: translateX(-30px);">TIME</th>
+      <th style="transform: translateX(-20px);">STATUS</th>
+      <% if (typeof change_status !== 'undefined' && change_status) { %>
+      <th></th>
+      <% } %>
+    </tr>
+  </table>
 </div>
 <div id="accordion">
-    <% orders.forEach(order => { %>
-    <div class="card">
-      <div class="card-header" id="heading<%= order.id %>">
-        <h5 class="mb-0">
-         <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
+  <% orders.forEach(order => { %>
+  <div class="card">
+    <div class="card-header" id="heading<%= order.id %>">
+      <h5 class="mb-0">
+        <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
           data-toggle="collapse" data-target="#collapse<%= order.id %>" aria-expanded="false"
-          aria-controls="collapse<%= order.order_id %>">            <span class="id"><%= order.id %></span>
-            <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1]  %></span>
-            <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
-            <% if (typeof change_status !== 'undefined' && change_status) { %>
-            <span>
-                <td>
-                    <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-toggle="modal" data-target="#exampleModal">
-                        Change status
+          aria-controls="collapse<%= order.order_id %>"> <span class="id"><%= order.id %></span>
+          <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1]  %></span>
+          <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
+          <% if (typeof change_status !== 'undefined' && change_status) { %>
+          <span>
+            <td>
+              <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-toggle="modal"
+                data-target="#exampleModal">
+                Change status
+              </button>
+
+              <!-- Modal -->
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="alert alert-primary" role="alert" style="display: none;">
+                  Order status changed!
+                </div>
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Change order status</h1>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
                       </button>
-                      
-                      <!-- Modal -->
-                      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="alert alert-primary" role="alert" style="display: none;">
-                          Order status changed!
-                        </div>
-                        <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              
-                              <h1 class="modal-title fs-5" id="exampleModalLabel">Change order status</h1>
-                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <div class="modal-body d-flex jusFtify-content-center align-items-center flex-column">
-                              <div class="d-flex justify-content-center flex-column align-items-start">
-                                <div><input class="form-check-input" type="radio" name="status" value="NOT_SHIPPED"> NOT SHIPPED</div><br/>
-                                <div><input class="form-check-input" type="radio" name="status" value="SHIPPED"> SHIPPED</div><br/>
-                                <div><input class="form-check-input" type="radio" name="status" value="DENIED"> DENIED</div><br/> 
-                                <div>
-                                  ORDER ID : <span class="order_id"><%= order.id %></span>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-primary submit">Save changes</button>
-                            </div>
-                          </form>
-                          </div>
+                    </div>
+                    <div class="modal-body d-flex jusFtify-content-center align-items-center flex-column">
+                      <div class="d-flex justify-content-center flex-column align-items-start">
+                        <div><input class="form-check-input" type="radio" name="status" value="NOT_SHIPPED"> NOT SHIPPED
+                        </div><br />
+                        <div><input class="form-check-input" type="radio" name="status" value="SHIPPED"> SHIPPED</div>
+                        <br />
+                        <div><input class="form-check-input" type="radio" name="status" value="DENIED"> DENIED</div>
+                        <br />
+                        <div>
+                          ORDER ID : <span class="order_id"><%= order.id %></span>
                         </div>
                       </div>
-                    </td>
-            </span>
-            <% } %>
-          </div>
-        </h5>
-      </div>
-
-      <div id="collapse<%= order.id %>" class="collapse" aria-labelledby="heading<%= order.id %>" data-parent="#accordion">
-        <div class="card-body">
-            <main class="container-fluid">
-                <div class="row my-2 justify-content-center">
-                    <div class="col-11">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">PRODUCT_ID</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Quantity</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% order.products.forEach(order => { %>
-                                <tr>
-                                    <th scope="row">
-                                        <%= order.id %>
-                                    </th>
-                                    <td>
-                                        <%= order.name %>
-                                    </td>
-                                    <td>
-                                        <%= order.quantity %>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary submit">Save changes</button>
+                      </div>
+                      </form>
                     </div>
+                  </div>
                 </div>
-            </main>        </div>
+            </td>
+          </span>
+          <% } %>
+        </div>
+      </h5>
+    </div>
+
+    <div id="collapse<%= order.id %>" class="collapse" aria-labelledby="heading<%= order.id %>"
+      data-parent="#accordion">
+      <div class="card-body">
+        <main class="container-fluid">
+          <div class="row my-2 justify-content-center">
+            <div class="col-11">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">PRODUCT_ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Quantity</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <% order.products.forEach(order => { %>
+                  <tr>
+                    <th scope="row">
+                      <%= order.id %>
+                    </th>
+                    <td>
+                      <%= order.name %>
+                    </td>
+                    <td>
+                      <%= order.quantity %>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
-    <% }) %>
-    
   </div>
-  <script>
-    for(const [index, submit] of document.querySelectorAll('.submit').entries()){
-    submit.onclick=()=>{
+  <% }) %>
+
+</div>
+<script>
+  for (const [index, submit] of document.querySelectorAll('.submit').entries()) {
+    submit.onclick = () => {
       sendData(index)
     }
   }
-    async function sendData(index){
-      let id = document.querySelectorAll('.order_id')[index].textContent;
-      let status = document.querySelectorAll('.modal-body')[index].querySelector('input[name="status"]:checked').value;
-      let res = await fetch("/modifyOrder?id="+id+"&status="+status, {
-        method: "PATCH"
+  async function sendData(index) {
+    let id = document.querySelectorAll('.order_id')[index].textContent;
+    let status = document.querySelectorAll('.modal-body')[index].querySelector('input[name="status"]:checked').value;
+    let res = await fetch("/modifyOrder", {
+      method: "PATCH",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: id,
+        status: status,
       })
-      let data = await res.json();
-      if(data['message']=="Successful"){
-        document.querySelector('.alert').style.display="block";
-        document.querySelectorAll('.status')[index].textContent=data['status'];
-      }
+    });
+    let data = await res.json();
+    if (data['message'] == "Successful") {
+      document.querySelector('.alert').style.display = "block";
+      document.querySelectorAll('.status')[index].textContent = data['status'];
     }
-    document.querySelector('.btn-close').onclick=()=>{
-      document.querySelector('.alert').style.display="none";
-    }
+  }
+  document.querySelector('.btn-close').onclick = () => {
+    document.querySelector('.alert').style.display = "none";
+  }
 
-    function filter() {
-      const cards = document.querySelectorAll('.card')
-      const id = document.querySelectorAll('.id')
-      const datetime = document.querySelectorAll('.datetime')
-      const status = document.querySelectorAll('.status')
-      let input = document.querySelector('#inputFilter')
-      if (input.value == "") {
-        for (let i = 0; i < cards.length; i++) {
-          cards[i].style.display = "block"
-        }
-      } else {
-        for (let j = 0; j < cards.length; j++) {
-          cards[j].style.display = "none"
-        }
-        for (let i = 0; i < cards.length; i++) {
+  function filter() {
+    const cards = document.querySelectorAll('.card')
+    const id = document.querySelectorAll('.id')
+    const datetime = document.querySelectorAll('.datetime')
+    const status = document.querySelectorAll('.status')
+    let input = document.querySelector('#inputFilter')
+    if (input.value == "") {
+      for (let i = 0; i < cards.length; i++) {
+        cards[i].style.display = "block"
+      }
+    } else {
+      for (let j = 0; j < cards.length; j++) {
+        cards[j].style.display = "none"
+      }
+      for (let i = 0; i < cards.length; i++) {
         let idres = id[i].textContent.search(input.value)
         let datetimeres = datetime[i].textContent.search(input.value)
         let statusres = status[i].textContent.search(input.value)
-        if(idres!=-1 || datetimeres!=-1 || statusres != -1){
+        if (idres != -1 || datetimeres != -1 || statusres != -1) {
           cards[i].style.display = "block"
         }
-      } 
       }
     }
-  </script>
-  
-  <%- include('footer') %>
+  }
+</script>
+
+<%- include('footer') %>
