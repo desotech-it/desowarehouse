@@ -20,7 +20,7 @@ app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/bootst
 app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/jquery/dist')))
 app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/jquery.easing')))
 app.use('/javascripts', express.static(path.join(__dirname, 'node_modules/startbootstrap-sb-admin-2/js')))
-
+app.use('/images', express.static(path.join(__dirname, 'public/images')))
 app.use('/fonts', express.static(path.join(__dirname, 'node_modules/@fontsource')))
 app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts')))
 

@@ -1,55 +1,3 @@
-<!-- 
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-	<div class="container-fluid">
-		<a class="navbar-brand" href="/">Shop</a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-			aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul class="navbar-nav">
-				<% function addActive(menuItem, activeMenuItem) { return menuItem === activeMenuItem ? ' active' : ''; } %>
-				<li class="nav-item">
-					<a class="nav-link<%- addActive('home', activeMenuItem) -%>" aria-current="page" href="/">Home</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link<%- addActive('orders', activeMenuItem) -%>" href="/orders">Orders</a>
-				</li>
-				<% if (typeof show_orders !== 'undefined' && show_orders) { %>
-					<li class="nav-item">
-						<a class="nav-link<%- addActive('allOrders', activeMenuItem) -%>" href="/allOrders">All Orders</a>
-					</li>
-					<% } %>
-				<% if (typeof show_labels !== 'undefined' && show_labels) { %>
-				<li class="nav-item">
-					<a class="nav-link<%- addActive('labels', activeMenuItem) -%>" href="/labels">Labels</a>
-				</li>
-				<% } %>
-				<% if (typeof show_users !== 'undefined' && show_users) { %>
-				<li class="nav-item">
-					<a class="nav-link<%- addActive('users', activeMenuItem) -%>" href="/users">Users</a>
-				</li>
-				<% } %>
-				<li class="nav-item">
-					<a class="nav-link" id="logout" href="">Logout</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-	<div class="me-3 d-flex">
-			<span>Role: </span><span><%= role %></div>
-	</div>
-</nav>
-<script>
-	function delete_cookie(name) {
-  document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
-document.querySelector('#logout').onclick=()=>{
-	delete_cookie('token');
-	window.location.reload();
-
-}
-</script> -->
 <% function addActive(menuItem, activeMenuItem) { return menuItem === activeMenuItem ? ' active' : ''; } %>
 <!-- Page Wrapper -->
 <div id="wrapper">
@@ -59,9 +7,6 @@ document.querySelector('#logout').onclick=()=>{
 
 		<!-- Sidebar - Brand -->
 		<a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-			<div class="sidebar-brand-icon rotate-n-15">
-				<i class="fas fa-laugh-wink"></i>
-			</div>
 			<div class="sidebar-brand-text mx-3">Shop</div>
 		</a>
 
@@ -80,7 +25,7 @@ document.querySelector('#logout').onclick=()=>{
 		<hr class="sidebar-divider">
 
 		<!-- Nav Item - Pages Collapse Menu -->
-		<li class="nav-item">
+		<li class="nav-item<%- addActive('orders', activeMenuItem) -%>">
 			<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
 				aria-expanded="true" aria-controls="collapseTwo">
 				<i class="fas fa-fw fa-cog"></i>
@@ -89,29 +34,33 @@ document.querySelector('#logout').onclick=()=>{
 			<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 				<div class="bg-white py-2 collapse-inner rounded">
 					<h6 class="collapse-header">Order Type</h6>
-					<a class="collapse-item" href="/allOrders">My Orders</a>
-					<a class="collapse-item" href="/orders">All orders</a>
+					<% if (typeof show_orders !== 'undefined' && show_orders) { %>
+					<a class="collapse-item" href="/allOrders">All Orders</a>
+					<% } %>
+					<a class="collapse-item" href="/orders">My orders</a>
 				</div>
 			</div>
 		</li>
-		<hr class="sidebar-divider">
-
+		<% if (typeof show_users !== 'undefined' && show_users) { %>
+			<hr class="sidebar-divider">
 		<li class="nav-item<%- addActive('users', activeMenuItem) -%>">
-			<a class="nav-link" aria-current="page" href="/">
+			<a class="nav-link" aria-current="page" href="/users">
 				<i class="fas fa-fw fa-wrench"></i>
 				Users</a>
 
 		</li>
+		<% } %>
 
 		<!-- Divider -->
-		<hr class="sidebar-divider">
-
+		<% if (typeof show_labels !== 'undefined' && show_labels) { %>
+			<hr class="sidebar-divider">
 		<li class="nav-item<%- addActive('labels', activeMenuItem) -%>">
-			<a class="nav-link" aria-current="page" href="/">
+			<a class="nav-link" aria-current="page" href="/labels">
 				<i class="fas fa-fw fa-folder"></i>
 				Labels</a>
 
 		</li>
+		<% } %>
 		<div class="text-center d-none d-md-inline">
 			<button class="rounded-circle border-0" id="sidebarToggle"></button>
 		</div>
@@ -165,26 +114,34 @@ document.querySelector('#logout').onclick=()=>{
 					
 
 				
-
-					<div class="topbar-divider d-none d-sm-block"></div>
-
+					<li class="nav-item dropdown no-arrow">
+						<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<span class="mr-2 d-none d-lg-inline text-gray-600 small">Role: 
+								<% if (typeof user.role !== 'undefined') { %>
+									User
+								<% } else %>
+								<%= user.role %>
+							</span>
+					</a>
+					</li>
+							<div class="topbar-divider d-none d-sm-block"></div>
 					<!-- Nav Item - User Information -->
 					<li class="nav-item dropdown no-arrow">
 						<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
 							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-							<img class="img-profile rounded-circle"
-								src="img/undraw_profile.svg">
+							<span class="mr-2 d-none d-lg-inline text-gray-600 small"><%= user.first_name %> <%= user.last_name %></span>
+							<i class="fa-solid fa-user img-profile rounded-circle pt-2 pl-2"></i>
 						</a>
 						<!-- Dropdown - User Information -->
 						<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
 							aria-labelledby="userDropdown">
-							<a class="dropdown-item" href="#">
+							<a class="dropdown-item" href="/">
 								<i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
 								Profile
 							</a>
 							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+							<a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal" id="logout">
 								<i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
 								Logout
 							</a>
@@ -194,4 +151,14 @@ document.querySelector('#logout').onclick=()=>{
 				</ul>
 
 			</nav>
+			<script>
+				function delete_cookie(name) {
+			  document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+			}
+			document.querySelector('#logout').onclick=()=>{
+				delete_cookie('token');
+				window.location.reload();
+			
+			}
+			</script>
 			<!-- End of Topbar -->

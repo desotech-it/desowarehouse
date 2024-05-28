@@ -20,23 +20,38 @@ async function getMetadata(token, title){
 /* GET home page. */
 router.get('/', async function (req, res, next) {
   let userData=null;
+  let orderData = null;
+  let numNotShippedOrders=0;
+  let numOrders=0;
   const token = req.cookies['token'];
   const auth = 'Bearer ' + token;
   try{
-    response = await axios.get('auth/me', {headers: {'Authorization': auth}});
+    let response = await axios.get('auth/me', {headers: {'Authorization': auth}});
     if (response.status === 401) {
       utils.redirectToLogin(res);
       return;
     }
     userData = response.data;
+    response = await axios.get(`users/${userData.id}/orders`, {headers: {'Authorization': auth}});
+    if (response.status === 401) {
+      utils.redirectToLogin(res);
+      return;
+    }
+    orderData = response.data;
+    for(let order of orderData){
+      numOrders=numOrders+1;
+      if(order['status']=="NOT_SHIPPED")
+        numNotShippedOrders=numNotShippedOrders+1;
+    }
+    console.log(orderData);
   }catch(e){
-    res.render('error', { message: e.message, error: { status: response.status } });
+    res.render('error', { message: e.message, error: { status: res.status } });
   }
   utils.userIsLoggedIn(token)
     .then(async (isLoggedIn) => {
       if (isLoggedIn){
         const metadata = await getMetadata(token, "Home");
-        res.render('index', Object.assign({}, metadata, {user: response.data }));
+        res.render('index', Object.assign({}, metadata, {user: userData, numOrders:numOrders, numNotShippedOrders:numNotShippedOrders }));
       }
       else
         res.redirect('/login');
@@ -59,6 +74,7 @@ router.get('/allOrders', async function (req, res) {
   // 500 Internal Server Error if something bad happened server side
   let response = null;
   let id = null;
+  let user = null;
   //call to get user data
   try{
     response = await axios.get('auth/me', {headers: {'Authorization': auth}});
@@ -66,6 +82,7 @@ router.get('/allOrders', async function (req, res) {
       utils.redirectToLogin(res);
       return;
     }
+    user = response.data;
     id=response.data['id'];
   }catch(e){
     res.render('error', { message: e.message, error: { status: response.status } });
@@ -77,7 +94,7 @@ router.get('/allOrders', async function (req, res) {
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, "Orders");
-      res.render('allOrders', Object.assign({}, metadata, {orders:response.data}));
+      res.render('allOrders', Object.assign({}, metadata, {orders:response.data, user:user}));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });
     }
@@ -97,6 +114,7 @@ router.get('/orders', async function (req, res) {
   // 500 Internal Server Error if something bad happened server side
   let response = null;
   let id = null;
+  let user = null;
   //call to get user data
   try{
     response = await axios.get('auth/me', {headers: {'Authorization': auth}});
@@ -104,6 +122,7 @@ router.get('/orders', async function (req, res) {
       utils.redirectToLogin(res);
       return;
     }
+    user=response.data;
     id=response.data['id'];
   }catch(e){
     res.render('error', { message: e.message, error: { status: response.status } });
@@ -115,7 +134,7 @@ router.get('/orders', async function (req, res) {
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, 'Orders');
-      res.render('orders', Object.assign({}, metadata, {orders: response.data }));
+      res.render('orders', Object.assign({}, metadata, {orders: response.data, user: user}));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });
     }
@@ -130,14 +149,17 @@ router.get('/labels', async function (req, res) {
   const token = req.cookies['token'];
   const auth = 'Bearer ' + token;
   let response = null;
+  let user = null;
   try {
+    response = await utils.getUserInfo(token);
+    user=response;
     response = await axios.get('/shipments', { headers: { 'Authorization': auth } });
     if (response.status === 401) {
       utils.redirectToLogin(res);
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, "Labels");
-      res.render('labels', Object.assign({}, metadata, {shipments: response.data}));
+      res.render('labels', Object.assign({}, metadata, {shipments: response.data, user: user}));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });
     }
@@ -202,7 +224,7 @@ router.get('/pdf', async function (req, res, next){
     res.render('error', { message: e.message, error: { status: response.status } });
   }
   
-  var myDoc = new PDFDocument({bufferPages: true});
+  var myDoc = new PDFDocument({bufferPages: true, size: [550, 900]});
 
 let buffers = [];
 myDoc.on('data', buffers.push.bind(buffers));
@@ -216,22 +238,24 @@ myDoc.on('end', () => {
     .end(pdfData);
 
 });
+myDoc.image('public/example.png', 0, 0, {fit: [550, 900], align: 'center'});
 
 myDoc
-    .fontSize(16)
-    .text(`SHIPMENT DETAILS`, 50, 75, {align: "left"})
+    .fontSize(24)
+    .text(`SHIPMENT DETAILS`, 25, 250, {align: "left"})
 
 myDoc
     .fontSize(12)
     .text(`
     Shipment Id: ${id}\n\n
     Order Id: ${order_id}\n\n
-    Datetime: ${datetime.replace('T', ' ')}\n\n
-    `, 50, 100, {align: 'left'});
+    Date: ${datetime.split('T')[0]}\n\n
+    Time: ${datetime.split('T')[1]}\n\n
+    `, 12, 275, {align: 'left'});
 
 myDoc
-    .fontSize(16)
-    .text(`SHIP TO:`, 50, 75, {align: "right"})
+    .fontSize(24)
+    .text(`SHIP TO`, 175, 250, {align: "right"})
 
 myDoc
     .fontSize(12)
@@ -240,10 +264,8 @@ myDoc
     Last Name: ${user.last_name}\n\n
     Mail: ${user.mail}\n\n
     Birthdate: ${user.birthdate}\n\n
-    `,50, 100, {align: 'right'});
+    `,200, 275, {align: 'right'});
 
-
-myDoc.image('barcode.png', {fit: [400, 150], align: 'center'});
 
 myDoc.end();
 });

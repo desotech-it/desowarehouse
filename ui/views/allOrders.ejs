@@ -1,11 +1,16 @@
 <%- include('header') %>
-<%- include('navbar', { activeMenuItem: 'allOrders', role:role}) %>
+<%- include('navbar', { activeMenuItem: 'orders', role:role, user:user}) %>
+<h3 class="text-center">FILTER</h3>
+<div class="input-group mb-3">
+  <input type="text" id="inputFilter" class="form-control" placeholder="Insert an Id, a Datetime or a Status"
+    aria-label="Recipient's username" aria-describedby="button-addon2" onkeyup="filter()">
+</div>
 <div class="card-header">
   <table class="table">
     <tr class="d-flex justify-content-around">
-  <th>ID</th>
-  <th>TIME</th>
-  <th>STATUS</th>
+  <th style="transform: translateX(-20px);">ID</th>
+  <th style="transform: translateX(-30px);">TIME</th>
+  <th style="transform: translateX(-20px);">STATUS</th>
   <% if (typeof change_status !== 'undefined' && change_status) { %>
   <th></th>
   <% } %>
@@ -18,14 +23,14 @@
       <div class="card-header" id="heading<%= order.id %>">
         <h5 class="mb-0">
          <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
-          data-bs-toggle="collapse" data-bs-target="#collapse<%= order.id %>" aria-expanded="false"
+          data-toggle="collapse" data-target="#collapse<%= order.id %>" aria-expanded="false"
           aria-controls="collapse<%= order.order_id %>">            <span class="id"><%= order.id %></span>
             <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1]  %></span>
             <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
             <% if (typeof change_status !== 'undefined' && change_status) { %>
             <span>
                 <td>
-                    <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-toggle="modal" data-target="#exampleModal">
                         Change status
                       </button>
                       
@@ -39,9 +44,11 @@
                             <div class="modal-header">
                               
                               <h1 class="modal-title fs-5" id="exampleModalLabel">Change order status</h1>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
                             </div>
-                            <div class="modal-body d-flex justify-content-center align-items-center flex-column">
+                            <div class="modal-body d-flex jusFtify-content-center align-items-center flex-column">
                               <div class="d-flex justify-content-center flex-column align-items-start">
                                 <div><input class="form-check-input" type="radio" name="status" value="NOT_SHIPPED"> NOT SHIPPED</div><br/>
                                 <div><input class="form-check-input" type="radio" name="status" value="SHIPPED"> SHIPPED</div><br/>
@@ -123,5 +130,31 @@
     document.querySelector('.btn-close').onclick=()=>{
       document.querySelector('.alert').style.display="none";
     }
+
+    function filter() {
+      const cards = document.querySelectorAll('.card')
+      const id = document.querySelectorAll('.id')
+      const datetime = document.querySelectorAll('.datetime')
+      const status = document.querySelectorAll('.status')
+      let input = document.querySelector('#inputFilter')
+      if (input.value == "") {
+        for (let i = 0; i < cards.length; i++) {
+          cards[i].style.display = "block"
+        }
+      } else {
+        for (let j = 0; j < cards.length; j++) {
+          cards[j].style.display = "none"
+        }
+        for (let i = 0; i < cards.length; i++) {
+        let idres = id[i].textContent.search(input.value)
+        let datetimeres = datetime[i].textContent.search(input.value)
+        let statusres = status[i].textContent.search(input.value)
+        if(idres!=-1 || datetimeres!=-1 || statusres != -1){
+          cards[i].style.display = "block"
+        }
+      } 
+      }
+    }
   </script>
+  
   <%- include('footer') %>

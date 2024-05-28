@@ -1,16 +1,11 @@
 <%- include('header') %>
-<%- include('navbar', { activeMenuItem: 'orders', role:role}) %>
-<h3 class="text-center">FILTRA</h3>
-<div class="input-group mb-3">
-  <input type="text" id="inputFilter" class="form-control" placeholder="Insert an Id, a Datetime or a Status"
-    aria-label="Recipient's username" aria-describedby="button-addon2" onkeyup="filter()">
-</div>
+<%- include('navbar', { activeMenuItem: 'orders', role:role, user:user}) %>
 <div class="card-header">
   <table class="table">
     <tr class="d-flex justify-content-around">
-      <th>ID</th>
-      <th>TIME</th>
-      <th>STATUS</th>
+      <th style="transform: translateX(-20px);">ID</th>
+      <th style="transform: translateX(-30px);">TIME</th>
+      <th style="transform: translateX(-20px);">STATUS</th>
     </tr>
   </table>
 </div>
@@ -20,7 +15,7 @@
     <div class="card-header" id="heading<%= order.order_id %>">
       <h5 class="mb-0">
         <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
-          data-bs-toggle="collapse" data-bs-target="#collapse<%= order.order_id %>" aria-expanded="false"
+          data-toggle="collapse" data-target="#collapse<%= order.order_id %>" aria-expanded="false"
           aria-controls="collapse<%= order.order_id %>">
           <span class="id"><%= order.order_id %></span>
           <span class="datetime"><%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1] %></span>
@@ -30,7 +25,7 @@
     </div>
 
     <div id="collapse<%= order.order_id %>" class="collapse" aria-labelledby="heading<%= order.order_id %>"
-      data-bs-parent="#accordion">
+      data-parent="#accordion">
       <div class="card-body">
         <main class="container-fluid">
           <div class="row my-2 justify-content-center">
@@ -69,27 +64,5 @@
   <% }) %>
 
 </div>
-<script>
-  function filter() {
-    const cards = document.querySelectorAll('.card')
-    const id = document.querySelectorAll('.id')
-    const datetime = document.querySelectorAll('.datetime')
-    const status = document.querySelectorAll('.status')
-    let input = document.querySelector('#inputFilter')
-    if (input.value == "") {
-      for (let i = 0; i < cards.length; i++) {
-        cards[i].style.display = "block"
-      }
-    } else {
-      for (let j = 0; j < cards.length; j++) {
-        cards[j].style.display = "none"
-      }
-      for (let i = 0; i < cards.length; i++) {
-        if (id[i].textContent == input.value || datetime[i].textContent == input.value || status[i].textContent == input.value) {
-          cards[i].style.display = "block"
-        }
-      }
-    }
-  }
-</script>
+
 <%- include('footer') %>
