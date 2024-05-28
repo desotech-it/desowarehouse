@@ -2,15 +2,15 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 const utils = require('../utils');
-async function getMetadata(token, title){
+async function getMetadata(token, title) {
   const role = await utils.getUserRole(token);
-  if(role=="admin")
-    return { title: title, show_labels: false, show_orders: true, show_users: true, change_status: true, role:role};
-  else if(role=="warehouse")
-    return {title: title, show_labels: true, show_orders: false, show_users: false, change_status: true, role:role}
+  if (role == "admin")
+    return { title: title, show_labels: false, show_orders: true, show_users: true, change_status: true, role: role };
+  else if (role == "warehouse")
+    return { title: title, show_labels: true, show_orders: false, show_users: false, change_status: true, role: role }
   else
-    return {title: title, show_labels: false, show_orders: false, show_users: false, change_status: false, role:role}
-  }
+    return { title: title, show_labels: false, show_orders: false, show_users: false, change_status: false, role: role }
+}
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
   const token = req.cookies['token'];
@@ -22,14 +22,14 @@ router.get('/', async function (req, res, next) {
   let user = null;
   try {
     response = await utils.getUserInfo(token);
-    user=response;
+    user = response;
     response = await axios.get('/users', { headers: { 'Authorization': auth } });
     if (response.status === 401) {
       utils.redirectToLogin(res);
       return;
     } else if (response.status === 200) {
       const metadata = await getMetadata(token, "Users");
-      res.render('users', Object.assign({}, metadata, {users: response.data, user:user }));
+      res.render('users', Object.assign({}, metadata, { users: response.data, user: user }));
     } else {
       res.render('error', { message: 'Something went wrong', error: {} });
     }

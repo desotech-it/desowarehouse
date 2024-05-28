@@ -5,12 +5,12 @@ async function userIsLoggedIn(token) {
 	return response.status === 200;
 }
 
-async function getUserRole(token){
+async function getUserRole(token) {
 	const response = await axios.get('/auth/me', { headers: { Authorization: 'Bearer ' + token } });
 	return response.data['role'];
 }
 
-async function getUserInfo(token){
+async function getUserInfo(token) {
 	const response = await axios.get('/auth/me', { headers: { Authorization: 'Bearer ' + token } });
 	return response.data;
 }
