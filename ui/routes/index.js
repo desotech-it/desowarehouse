@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 var PDFDocument = require('pdfkit');
-var fs = require('fs');
 const utils = require('../utils');
 const FormData = require('form-data');
 
@@ -43,7 +42,6 @@ router.get('/', async function (req, res, next) {
       if (order['status'] == "NOT_SHIPPED")
         numNotShippedOrders = numNotShippedOrders + 1;
     }
-    console.log(orderData);
   } catch (e) {
     res.render('error', { message: e.message, error: { status: res.status } });
   }

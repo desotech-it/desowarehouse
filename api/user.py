@@ -82,8 +82,6 @@ class DatabaseUserRepository:
         cur = self.connection.cursor()
         cur.execute(READ_USER_BY_MAIL, (mail,))
         for id, first_name, last_name, mail, birthdate, role in cur:
-            print('piipo')
-            print(id, first_name, last_name, mail, birthdate, role)
             return User(
                 id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )

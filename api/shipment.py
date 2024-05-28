@@ -46,7 +46,6 @@ class DatabaseShipmentRepository:
     def create(self, order_id):
         cur = self.connection.cursor()
         cur.execute(CREATE_SHIPMENT_BY_ORDER_ID, (order_id,))
-        print(f"{cur.rowcount} details inserted")
         shipment = self.get(order_id)
         return shipment
 
