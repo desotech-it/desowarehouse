@@ -26,7 +26,7 @@ READ_ORDER_BY_USERS_AND_ORDER_ID="""
 select order_id, product_id, name, quantity, datetime, status from `order` join `order_product` on order.id = order_product.order_id join user on user.id = order.user_id join product on order.id=product.id where user.id=(?) and order_id=(?);"""
 
 MODIFY_ORDER = """
-UPDATE `order` SET status=? where id=?;
+UPDATE `order` SET status=? where id=?
 """
 
 class Order(BaseModel):
@@ -73,6 +73,7 @@ class DatabaseOrderRepository:
                     quantity=quantity,
                 )
             )
+        cur.close()
         return list(orders.values())
 
     def get(self, id):
@@ -109,6 +110,7 @@ class DatabaseOrderRepository:
                 )
             )
         order.products = products[id]
+        cur.close()
         return order
 
     def create(self, product_id, quantity):
@@ -117,10 +119,14 @@ class DatabaseOrderRepository:
         cur.execute("select max(id) from `order`")
         for id in cur:
             return {"order_id": id}
+        self.connection.commit()
+        cur.close()
 
     def delete(self, id):
         cur = self.connection.cursor()
         cur.execute(DELETE_ORDER_BY_ID, (id,))
+        self.connection.commit()
+        cur.close()
 
     def get_by_user(self, user_id):
         cur = self.connection.cursor()
@@ -136,6 +142,7 @@ class DatabaseOrderRepository:
             orders[order_id]["status"]=status
         for order_id in orders:
             total.append({"order_id":order_id, "products":orders[order_id]["products"], "datetime":orders[order_id]["datetime"], "status":orders[order_id]["status"]})
+        cur.close()
         return total
 
     def get_by_user_order(self, user_id, order_id):
@@ -148,12 +155,14 @@ class DatabaseOrderRepository:
             orders[order_id].append({"product_id": product_id, "name":name,"quantiy":quantity})
             orders["datetime"]=datetime
             orders["status"]=status
+        cur.close()
         return orders
 
     def modify(self, id, status):
         cur = self.connection.cursor()
         cur.execute(MODIFY_ORDER, (status, id))
         self.connection.commit()
+        cur.close()
         return
 
 connection = pool.get_connection()

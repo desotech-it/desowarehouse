@@ -186,16 +186,19 @@ router.patch('/modifyOrder', async function (req, res, next) {
   const id = body.id;
   const status = body.status;
   try {
-    if (status == "SHIPPED")
+    if (status == "SHIPPED") {
       await axios.post('/shipments', { id: id });
+    }
     let response = await axios.patch(
       '/orders/' + id,
       { status: status },
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } },
     );
-    if (response.status == 400)
+    if (response.status >= 200 && response.status <= 399) {
+      res.json({ "message": "Successful", "status": status });
+    } else {
       res.render('error', { message: 'Something went wrong', error: {} });
-    res.json({ "message": "Successful", "status": status })
+    }
   } catch (e) {
     res.render('error', { message: 'Something went wrong', error: {} });
   }
@@ -208,6 +211,7 @@ router.get('/pdf', async function (req, res, next) {
   const order_id = req.query.order_id;
   const token = req.cookies['token'];
   const auth = 'Bearer ' + token;
+  let response = null;
   try {
     response = await axios.get('/orders/' + order_id, { headers: { 'Authorization': auth } });
     if (response.status === 401) {
