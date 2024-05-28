@@ -197,7 +197,6 @@ router.patch('/modifyOrder', async function (req, res, next) {
     res.render('error', { message: 'Something went wrong', error: {} });
   }
 });
-module.exports = router;
 
 router.get('/pdf', async function (req, res, next) {
   let user = null;
@@ -270,3 +269,5 @@ router.get('/pdf', async function (req, res, next) {
 
   myDoc.end();
 });
+
+module.exports = router;
