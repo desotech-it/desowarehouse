@@ -67,6 +67,7 @@ class DatabaseUserRepository:
                     role=role
                 )
             )
+        cur.close()
         return users
 
     def get(self, id):
@@ -76,6 +77,7 @@ class DatabaseUserRepository:
             return User(
                 id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
+        cur.close()
         return None
 
     def get_by_mail(self, mail):
@@ -85,6 +87,7 @@ class DatabaseUserRepository:
             return User(
                 id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
+        cur.close()
         return None
 
     def get_credentials(self, username) -> UserCredentials | None:
@@ -93,6 +96,7 @@ class DatabaseUserRepository:
         user = None
         for mail, password in cur:
             user = UserCredentials(username=mail, hashed_password=password)
+        cur.close()
         return user
 
 class Token(BaseModel):

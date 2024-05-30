@@ -46,6 +46,7 @@ class DatabaseProductRepository:
                     quantity=quantity,
                 )
             )
+        cur.close()
         return products
 
     def get(self, id):
@@ -62,6 +63,7 @@ class DatabaseProductRepository:
                 weight=weight,
                 quantity=quantity,
             )
+        cur.close()
         return None
 
 

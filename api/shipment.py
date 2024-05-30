@@ -34,6 +34,7 @@ class DatabaseShipmentRepository:
         shipments = []
         for id, order_id, datetime in cur:
             shipments.append(Shipment(id=id, order_id=order_id, datetime=datetime))
+        cur.close()
         return shipments
 
     def get(self, id):
@@ -41,12 +42,14 @@ class DatabaseShipmentRepository:
         cur.execute(READ_SHIPMENT_BY_ID, (id,))
         for id, order_id, datetime in cur:
             return Shipment(id=id, order_id=order_id, datetime=datetime)
+        cur.close()
         return None
 
     def create(self, order_id):
         cur = self.connection.cursor()
         cur.execute(CREATE_SHIPMENT_BY_ORDER_ID, (order_id,))
         shipment = self.get(order_id)
+        cur.close()
         return shipment
 
 
