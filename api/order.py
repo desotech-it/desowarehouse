@@ -5,6 +5,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException
 from database import name as database_name, pool
 from user import User, get_current_user
+
 READ_ORDERS_QUERY = """
 select `order`.*, product.id AS product_id, product.name, product.price, product.width, product.height, product.depth, product.weight, order_product.quantity
 from `order` inner join order_product on order.id = order_product.order_id inner join product on order_product.product_id=product.id

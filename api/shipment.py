@@ -4,6 +4,7 @@ from fastapi import APIRouter, Response, status, HTTPException, Depends
 from database import name as database_name, pool
 from typing import Annotated
 from order import get_current_user, User
+
 READ_SHIPMENTS_QUERY = """
 SELECT id, order_id, datetime
 FROM `shipment`
