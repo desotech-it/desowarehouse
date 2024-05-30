@@ -15,10 +15,11 @@
     </h5>
     <h5>
       Role: 								
-      <% if (typeof user.role !== 'undefined') { %>
+      <% if (typeof user.role == 'undefined') { %>
         User
-      <% } else %>
+      <% } else { %>
       <%= user.role %>
+      <% } %>
     </h5>
   </div>
 
