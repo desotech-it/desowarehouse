@@ -24,19 +24,19 @@
       <h5 class="mb-0">
         <div class="btn btn-link collapsed d-flex justify-content-around align-items-center text-decoration-none"
           data-toggle="collapse" data-target="#collapse<%= order.id %>" aria-expanded="false"
-          aria-controls="collapse<%= order.order_id %>"> <span class="id"><%= order.id %></span>
+          aria-controls="collapse<%= order.id %>"> <span class="id"><%= order.id %></span>
           <span class="datetime"> <%= order.datetime.split("T")[0] %> <%= order.datetime.split("T")[1]  %></span>
           <span class="status"> <%= order.status.split("_")[0] %> <%= order.status.split("_")[1] %></span>
           <% if (typeof change_status !== 'undefined' && change_status) { %>
           <span>
             <td>
-              <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-toggle="modal"
-                data-target="#exampleModal">
+              <button type="button" class="btn btn-primary btn-sm" style="max-width: 75px;" data-toggle="modal" data-whatever="<%= order.id %>"
+                data-target="#exampleModal<%= order.id %>">
                 Change status
               </button>
 
               <!-- Modal -->
-              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+              <div class="modal fade" id="exampleModal<%= order.id %>" tabindex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
                 <div class="alert alert-primary" role="alert" style="display: none;">
                   Order status changed!
@@ -92,16 +92,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <% order.products.forEach(order => { %>
+                  <% order.products.forEach(product => { %>
                   <tr>
                     <th scope="row">
-                      <%= order.id %>
+                      <%= product.id %>
                     </th>
                     <td>
-                      <%= order.name %>
+                      <%= product.name %>
                     </td>
                     <td>
-                      <%= order.quantity %>
+                      <%= product.quantity %>
                     </td>
                   </tr>
                   <% }) %>
