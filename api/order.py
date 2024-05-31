@@ -128,14 +128,14 @@ class DatabaseOrderRepository:
         cur.execute("select max(id) from `order`")
         for id in cur:
             return {"order_id": id}
-        self.connection.commit()
+        conn.commit()
         cur.close()
 
     def delete(self, id):
         conn = self.pool.get_connection()
         cur = conn.cursor()
         cur.execute(DELETE_ORDER_BY_ID, (id,))
-        self.connection.commit()
+        conn.commit()
         cur.close()
         conn.close()
 
@@ -180,7 +180,7 @@ class DatabaseOrderRepository:
         conn.database = database_name
         cur = conn.cursor()
         cur.execute(MODIFY_ORDER, (status, id))
-        self.connection.commit()
+        conn.commit()
         cur.close()
         conn.close()
         return
