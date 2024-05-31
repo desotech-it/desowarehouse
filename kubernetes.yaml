@@ -1,0 +1,417 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop-app
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-init
+  namespace: shop-app
+data:
+  01-init.sql: |
+    CREATE DATABASE IF NOT EXISTS `shop`;
+
+    CREATE TABLE IF NOT EXISTS `user` (
+            `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `first_name` VARCHAR(255) NOT NULL,
+            `last_name` VARCHAR(255) NOT NULL,
+            `mail` VARCHAR(255) NOT NULL,
+            `birthdate` DATE NOT NULL,
+            `password` CHAR(65) NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS `role` (
+            `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(255) NOT NULL,
+            UNIQUE INDEX (`name`)
+    );
+
+    CREATE TABLE IF NOT EXISTS `user_role` (
+            `user_id` MEDIUMINT UNSIGNED NOT NULL,
+            `role_id` MEDIUMINT UNSIGNED NOT NULL,
+            CONSTRAINT `pk_user_role` PRIMARY KEY (`user_id`, `role_id`),
+            CONSTRAINT `fk_user_role_uid`
+                    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+            CONSTRAINT `fk_user_role_rid`
+                    FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+    );
+
+    CREATE TABLE IF NOT EXISTS `product` (
+            `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(200) NOT NULL,
+            `price` DECIMAL(10,2) NOT NULL,
+            `width` SMALLINT UNSIGNED NOT NULL,
+            `height` SMALLINT UNSIGNED NOT NULL,
+            `depth` SMALLINT UNSIGNED NOT NULL,
+            `weight` SMALLINT UNSIGNED NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS `inventory` (
+            `product_id` MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY,
+            `quantity` INT UNSIGNED NOT NULL DEFAULT 0,
+            CONSTRAINT `fk_inventory_product`
+                    FOREIGN KEY (`product_id`) REFERENCES product (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+    );
+
+    CREATE TABLE IF NOT EXISTS `order` (
+            `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `datetime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `status` ENUM('NOT_SHIPPED', 'SHIPPED', 'DENIED') NOT NULL DEFAULT 'NOT_SHIPPED',
+            `user_id` MEDIUMINT UNSIGNED NOT NULL,
+            CONSTRAINT `fk_user_id`
+                    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+    );
+
+    CREATE TABLE IF NOT EXISTS `order_product` (
+            `order_id` MEDIUMINT UNSIGNED NOT NULL,
+            `product_id` MEDIUMINT UNSIGNED NOT NULL,
+            `quantity` INT UNSIGNED NOT NULL,
+            CONSTRAINT `pk_order_product` PRIMARY KEY (`order_id`, `product_id`),
+            CONSTRAINT `fk_order_product_oid`
+                    FOREIGN KEY (`order_id`) REFERENCES `order` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+            CONSTRAINT `fk_order_product_pid`
+                    FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+    );
+
+    CREATE TABLE IF NOT EXISTS `shipment` (
+            `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `order_id` MEDIUMINT UNSIGNED NOT NULL,
+            `datetime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT `fk_shipment_oid`
+                    FOREIGN KEY (`order_id`) REFERENCES `order` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+    );
+  02-populate.sql: |
+    INSERT INTO `product` (`name`, `price`, `width`, `height`, `depth`, `weight`)
+    VALUES
+            ('Oral-B iO 9N', 230.00, 181, 259, 99, 980),
+            ('Gillette Fusion Lamette Da Barba', 36.99, 110, 252, 24, 140),
+            ('Aerosol Portatile Silenzioso', 33.84, 146, 66, 151, 250),
+            ('Giubotto di pelle per moto', 189.00, 400, 600, 200, 3000),
+            ('Casco AGV K6-S', 479.95, 150, 300, 300, 1500),
+            ('Marvel\'s Spider-Man Miles Morales', 44.95, 130, 170, 15, 10),
+            ('LG 27GP950 UltraGear Gaming Monitor 27" UltraHD', 753.82, 609, 291, 574, 7900),
+            ('Giubbotto Riscaldato 10000mAh', 63.17, 425, 660, 300, 800),
+            ('Bomboletta Graffiti', 7.00, 65, 200, 65, 410),
+            ('Design Patterns: Elements of Reusable Object-Oriented Software', 18.92, 194, 237, 264, 885);
+
+    INSERT INTO `user` (`first_name`, `last_name`, `mail`, `birthdate`, `password`)
+    VALUES
+            ('Gianluca', 'Recchia', 'g.recchia@desolabs.com', '1997-09-16', SHA2('grecchia', 0)),
+            ('Cristian', 'Gramegna', 'c.gramegna@desolabs.com', '2005-05-02', SHA2('cgramegna', 0)),
+            ('Francesco', 'Grimaldi', 'f.grimaldi@desolabs.com', '1997-05-09', SHA2('fgrimaldi', 0));
+
+    INSERT INTO `inventory` (`product_id`,`quantity`)
+    VALUES
+            (1, FLOOR(RAND()*(10)+1)),
+            (2, FLOOR(RAND()*(10)+1)),
+            (3, FLOOR(RAND()*(10)+1)),
+            (4, FLOOR(RAND()*(10)+1)),
+            (5, FLOOR(RAND()*(10)+1)),
+            (6, FLOOR(RAND()*(10)+1)),
+            (7, FLOOR(RAND()*(10)+1)),
+            (8, FLOOR(RAND()*(10)+1)),
+            (9, FLOOR(RAND()*(10)+1)),
+            (10, FLOOR(RAND()*(10)+1));
+
+    INSERT INTO `order` (`datetime`, `user_id`)
+    VALUES
+            ('2024-01-18', 1),
+            ('2023-12-31', 2),
+            ('2022-05-11', 3),
+            ('2023-06-10', 1),
+            ('2024-05-17', 2),
+            ('2021-01-02', 3),
+            ('2020-08-09', 1),
+            ('2023-10-22', 2),
+            ('2021-10-11', 3);
+
+    INSERT INTO `order_product` (`order_id`, `product_id`, `quantity`)
+    VALUES
+        (1, 1, 3),
+        (1, 2, 2),
+        (1, 3, 4),
+        (1, 4, 5),
+        (2, 5, 1),
+        (2, 6, 2),
+        (2, 7, 3),
+        (2, 8, 4),
+        (3, 9, 5),
+        (3, 10, 1),
+        (3, 1, 2),
+        (3, 2, 3),
+        (4, 3, 4),
+        (4, 4, 5),
+        (4, 5, 1),
+        (4, 6, 2),
+        (5, 7, 3),
+        (5, 8, 4),
+        (5, 9, 5),
+        (5, 10, 1),
+        (6, 1, 2),
+        (6, 2, 3),
+        (6, 3, 4),
+        (6, 4, 5),
+        (7, 5, 1),
+        (7, 6, 2),
+        (7, 7, 3),
+        (7, 8, 4),
+        (8, 9, 5),
+        (8, 10, 1),
+        (8, 1, 2),
+        (8, 2, 3),
+        (1, 5, 4),
+        (1, 6, 5),
+        (2, 9, 1),
+        (2, 10, 2),
+        (3, 5, 3),
+        (3, 6, 4),
+        (4, 7, 5),
+        (4, 8, 1);
+
+    INSERT INTO `role` (`name`)
+    VALUES
+            ('admin'),
+            ('warehouse');
+
+    INSERT INTO `user_role` (`user_id`, `role_id`)
+    VALUES
+            (3, 1),
+            (2, 2);
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-config
+  namespace: shop-app
+stringData:
+  database: shop
+  root-password: root
+  user: user
+  password: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: shop-app
+  labels:
+    app: db
+spec:
+  ports:
+  - port: 3306
+    name: db-port
+  clusterIP: None
+  selector:
+    app: db
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: shop-app
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      volumes:
+      - name: init
+        configMap:
+          name: db-init
+      containers:
+      - name: mariadb
+        image: r.deso.tech/dockerhub/library/mariadb:11
+        ports:
+        - containerPort: 3306
+          name: db-port
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-config
+              key: root-password
+        - name: MARIADB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-config
+              key: user
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-config
+              key: password
+        - name: MARIADB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: db-config
+              key: database
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: init
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ReadWriteOnce]
+      resources:
+        requests:
+          storage: 1G
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: shop-app
+  labels:
+    app: redis
+spec:
+  ports:
+  - port: 6379
+    name: redis-port
+  clusterIP: None
+  selector:
+    app: redis
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: shop-app
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: r.deso.tech/dockerhub/library/redis:7
+        ports:
+        - containerPort: 6379
+          name: redis-port
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        args:
+          - redis-server
+          - --save
+          - '60'
+          - '1'
+          - --loglevel
+          - warning
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ReadWriteOnce]
+      resources:
+        requests:
+          storage: 1G
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api
+  name: api
+  namespace: shop-app
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: api
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: shop-app
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: r.deso.tech/shop/api:1
+        name: api
+        env:
+          - name: DATABASE_HOST
+            value: db
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-config
+                key: user
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-config
+                key: password
+          - name: DATABASE_NAME
+            valueFrom:
+              secretKeyRef:
+                name: db-config
+                key: database
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ui
+  name: ui
+  namespace: shop-app
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: ui
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ui
+  name: ui
+  namespace: shop-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - image: r.deso.tech/shop/ui:1
+        name: ui
+        env:
+          - name: API_URL
+            value: http://api:8080
