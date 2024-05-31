@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from fastapi import APIRouter, Response, HTTPException
-from database import name as database_name, pool
+from database import name as database_name, create_connection_pool
 
 READ_PRODUCTS_QUERY = """
 SELECT product.id,product.name,product.price,product.width,product.height,product.depth,product.weight,inventory.quantity
@@ -26,11 +26,13 @@ class Product(BaseModel):
 
 
 class DatabaseProductRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, pool):
+        self.pool = pool
 
     def list(self):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_PRODUCTS_QUERY)
         products = []
         for id, name, price, width, height, depth, weight, quantity in cur:
@@ -47,10 +49,13 @@ class DatabaseProductRepository:
                 )
             )
         cur.close()
+        conn.close()
         return products
 
     def get(self, id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_PRODUCT_BY_ID, (id,))
         for id, name, price, width, height, depth, weight, quantity in cur:
             return Product(
@@ -64,12 +69,10 @@ class DatabaseProductRepository:
                 quantity=quantity,
             )
         cur.close()
+        conn.close()
         return None
 
-
-connection = pool.get_connection()
-connection.database = database_name
-product_repository = DatabaseProductRepository(connection)
+product_repository = DatabaseProductRepository(create_connection_pool('products'))
 router = APIRouter()
 
 

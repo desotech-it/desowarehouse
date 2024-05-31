@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException
-from database import name as database_name, pool
+from database import name as database_name, create_connection_pool
 from user import User, get_current_user
 
 READ_ORDERS_QUERY = """
@@ -39,11 +39,13 @@ class Order(BaseModel):
 
 
 class DatabaseOrderRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, pool):
+        self.pool = pool
 
     def list(self):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_ORDERS_QUERY)
         orders = {}
         for (
@@ -75,10 +77,13 @@ class DatabaseOrderRepository:
                 )
             )
         cur.close()
+        conn.close()
         return list(orders.values())
 
     def get(self, id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_ORDER_BY_ID, (id,))
         products = {}
         for (
@@ -112,10 +117,13 @@ class DatabaseOrderRepository:
             )
         order.products = products[id]
         cur.close()
+        conn.close()
         return order
 
     def create(self, product_id, quantity):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(CREATE_ORDER_BY_ORDER_ID, (product_id, quantity))
         cur.execute("select max(id) from `order`")
         for id in cur:
@@ -124,13 +132,17 @@ class DatabaseOrderRepository:
         cur.close()
 
     def delete(self, id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        cur = conn.cursor()
         cur.execute(DELETE_ORDER_BY_ID, (id,))
         self.connection.commit()
         cur.close()
+        conn.close()
 
     def get_by_user(self, user_id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_ORDERS_BY_USER, (user_id,))
         orders={}
         total=[]
@@ -144,10 +156,13 @@ class DatabaseOrderRepository:
         for order_id in orders:
             total.append({"order_id":order_id, "products":orders[order_id]["products"], "datetime":orders[order_id]["datetime"], "status":orders[order_id]["status"]})
         cur.close()
+        conn.close()
         return total
 
     def get_by_user_order(self, user_id, order_id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_ORDER_BY_USERS_AND_ORDER_ID, (user_id,order_id))
         orders={}
         for(order_id, product_id, name, quantity, datetime, status) in cur:
@@ -157,18 +172,20 @@ class DatabaseOrderRepository:
             orders["datetime"]=datetime
             orders["status"]=status
         cur.close()
+        conn.close()
         return orders
 
     def modify(self, id, status):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(MODIFY_ORDER, (status, id))
         self.connection.commit()
         cur.close()
+        conn.close()
         return
 
-connection = pool.get_connection()
-connection.database = database_name
-order_repository = DatabaseOrderRepository(connection)
+order_repository = DatabaseOrderRepository(create_connection_pool('orders'))
 router = APIRouter()
 
 @router.get("/orders")

@@ -7,7 +7,7 @@ from typing import Annotated, Optional
 import hashlib
 
 from cache import r
-from database import name as database_name, pool
+from database import name as database_name, create_connection_pool
 
 READ_USERS_QUERY = """
 SELECT u.id, u.first_name, u.last_name, u.mail, u.birthdate, r.name AS role
@@ -31,8 +31,6 @@ WHERE u.mail = ?
 READ_USER_CREDENTIALS = 'SELECT `mail`,`password` FROM `user` WHERE `mail`=?'
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-connection = pool.get_connection()
-connection.database = database_name
 
 class User(BaseModel):
     id: int
@@ -49,11 +47,13 @@ class UserCredentials(BaseModel):
 
 
 class DatabaseUserRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, pool):
+        self.pool = pool
 
     def list(self):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_USERS_QUERY)
         users = []
         for id, first_name, last_name, mail, birthdate, role in cur:
@@ -68,35 +68,45 @@ class DatabaseUserRepository:
                 )
             )
         cur.close()
+        conn.close()
         return users
 
     def get(self, id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_USER_BY_ID, (id,))
         for id, first_name, last_name, mail, birthdate, role in cur:
             return User(
                 id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
         cur.close()
+        conn.close()
         return None
 
     def get_by_mail(self, mail):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_USER_BY_MAIL, (mail,))
         for id, first_name, last_name, mail, birthdate, role in cur:
             return User(
                 id=id, first_name=first_name, last_name=last_name, mail=mail, birthdate=birthdate, role=role
             )
         cur.close()
+        conn.close()
         return None
 
     def get_credentials(self, username) -> UserCredentials | None:
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_USER_CREDENTIALS, (username,))
         user = None
         for mail, password in cur:
             user = UserCredentials(username=mail, hashed_password=password)
         cur.close()
+        conn.close()
         return user
 
 class Token(BaseModel):
@@ -107,7 +117,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
 
-user_repository = DatabaseUserRepository(connection)
+user_repository = DatabaseUserRepository(create_connection_pool('users'))
 
 # TODO: replace this key with an environment variable
 SECRET_KEY = "f2b5a308e934de7c37a179e416ae075449694bf0ac7672c23598778d6f837b09"

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from fastapi import APIRouter, Response, status, HTTPException, Depends
-from database import name as database_name, pool
+from database import name as database_name, create_connection_pool
 from typing import Annotated
 from order import get_current_user, User
 
@@ -26,37 +26,44 @@ class Shipment(BaseModel):
 
 
 class DatabaseShipmentRepository:
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, pool):
+        self.pool = pool
 
     def list(self):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_SHIPMENTS_QUERY)
         shipments = []
         for id, order_id, datetime in cur:
             shipments.append(Shipment(id=id, order_id=order_id, datetime=datetime))
         cur.close()
+        conn.close()
         return shipments
 
     def get(self, id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(READ_SHIPMENT_BY_ID, (id,))
         for id, order_id, datetime in cur:
             return Shipment(id=id, order_id=order_id, datetime=datetime)
         cur.close()
+        conn.close()
         return None
 
     def create(self, order_id):
-        cur = self.connection.cursor()
+        conn = self.pool.get_connection()
+        conn.database = database_name
+        cur = conn.cursor()
         cur.execute(CREATE_SHIPMENT_BY_ORDER_ID, (order_id,))
         shipment = self.get(order_id)
         cur.close()
+        conn.close()
         return shipment
 
 
-connection = pool.get_connection()
-connection.database = database_name
-shipments_repository = DatabaseShipmentRepository(connection)
+shipments_repository = DatabaseShipmentRepository(create_connection_pool('shipments'))
 router = APIRouter()
 
 
