@@ -57,6 +57,7 @@ class DatabaseShipmentRepository:
         conn.database = database_name
         cur = conn.cursor()
         cur.execute(CREATE_SHIPMENT_BY_ORDER_ID, (order_id,))
+        conn.commit()
         shipment = self.get(order_id)
         cur.close()
         conn.close()
