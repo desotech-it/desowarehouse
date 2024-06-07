@@ -1,16 +1,18 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: shop-app
+  name: desowarehouse
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: db-init
-  namespace: shop-app
+  namespace: desowarehouse
 data:
   01-init.sql: |
-    CREATE DATABASE IF NOT EXISTS `shop`;
+    CREATE DATABASE IF NOT EXISTS `desowarehouse`;
+
+    USE `desowarehouse`;
 
     CREATE TABLE IF NOT EXISTS `user` (
             `id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -183,9 +185,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: db-config
-  namespace: shop-app
+  namespace: desowarehouse
 stringData:
-  database: shop
+  database: desowarehouse
   root-password: root
   user: user
   password: password
@@ -194,7 +196,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: db
-  namespace: shop-app
+  namespace: desowarehouse
   labels:
     app: db
 spec:
@@ -209,7 +211,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: db
-  namespace: shop-app
+  namespace: desowarehouse
 spec:
   serviceName: db
   replicas: 1
@@ -271,7 +273,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: shop-app
+  namespace: desowarehouse
   labels:
     app: redis
 spec:
@@ -286,7 +288,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis
-  namespace: shop-app
+  namespace: desowarehouse
 spec:
   serviceName: redis
   replicas: 1
@@ -329,7 +331,7 @@ metadata:
   labels:
     app: api
   name: api
-  namespace: shop-app
+  namespace: desowarehouse
 spec:
   ports:
   - port: 8080
@@ -341,7 +343,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api
-  namespace: shop-app
+  namespace: desowarehouse
   labels:
     app: api
 spec:
@@ -355,7 +357,7 @@ spec:
         app: api
     spec:
       containers:
-      - image: r.deso.tech/shop/api:1
+      - image: r.deso.tech/desowarehouse/api:1
         name: api
         env:
           - name: DATABASE_HOST
@@ -382,7 +384,7 @@ metadata:
   labels:
     app: ui
   name: ui
-  namespace: shop-app
+  namespace: desowarehouse
 spec:
   ports:
   - port: 80
@@ -398,7 +400,7 @@ metadata:
   labels:
     app: ui
   name: ui
-  namespace: shop-app
+  namespace: desowarehouse
 spec:
   replicas: 1
   selector:
@@ -410,7 +412,7 @@ spec:
         app: ui
     spec:
       containers:
-      - image: r.deso.tech/shop/ui:1
+      - image: r.deso.tech/desowarehouse/ui:1
         name: ui
         env:
           - name: API_URL

@@ -13,7 +13,7 @@ services:
       MARIADB_ROOT_PASSWORD: root
       MARIADB_USER: &database_user user
       MARIADB_PASSWORD: &database_password password
-      MARIADB_DATABASE: &database_name shop
+      MARIADB_DATABASE: &database_name desowarehouse
     volumes:
       - mariadb:/var/lib/mysql
       - ./db/initdb.d:/docker-entrypoint-initdb.d:ro
@@ -31,7 +31,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    image: shop-api
+    image: desowarehouse-api
     restart: always
     build: api
     init: true
@@ -64,7 +64,7 @@ services:
 
   ui:
     depends_on: [api]
-    image: shop-ui-dev
+    image: desowarehouse-ui-dev
     build:
       context: ui
       dockerfile: Dockerfile.dev

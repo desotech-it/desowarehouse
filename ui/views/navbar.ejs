@@ -7,7 +7,7 @@
 
 		<!-- Sidebar - Brand -->
 		<a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
-			<div class="sidebar-brand-text mx-3">Shop</div>
+			<div class="sidebar-brand-text mx-3">Desowarehouse</div>
 		</a>
 
 		<!-- Divider -->
@@ -64,7 +64,7 @@
 		<div class="text-center d-none d-md-inline">
 			<button class="rounded-circle border-0" id="sidebarToggle"></button>
 		</div>
-		
+
 	</ul>
 	<!-- End of Sidebar -->
 
@@ -82,7 +82,7 @@
 					<i class="fa fa-bars"></i>
 				</button>
 
-				
+
 
 				<!-- Topbar Navbar -->
 				<ul class="navbar-nav ml-auto d-flex w-100 justify-content-between">
@@ -112,13 +112,13 @@
 						</div>
 					</li>
 
-					
 
-				
+
+
 					<li class="nav-item dropdown no-arrow">
 						<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
 							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<span class="mr-2 d-none d-lg-inline text-gray-600 small">Role: 
+							<span class="mr-2 d-none d-lg-inline text-gray-600 small">Role:
 								<% if (typeof user.role == 'undefined') { %>
 									User
 								<% } else %>
@@ -126,7 +126,7 @@
 							</span>
 					</a>
 					</li>
-					
+
 							<div class="topbar-divider d-none d-sm-block"></div>
 					<!-- Nav Item - User Information -->
 					<li class="nav-item dropdown no-arrow">
@@ -161,7 +161,7 @@
 			document.querySelector('#logout').onclick=()=>{
 				delete_cookie('token');
 				window.location.reload();
-			
+
 			}
 			</script>
 			<!-- End of Topbar -->
