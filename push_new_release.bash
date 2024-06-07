@@ -41,3 +41,6 @@ docker image push -a "$api_path"
 
 echo "Pushing $ui_path"
 docker image push -a "$ui_path"
+
+echo Cleaning images...
+docker image prune -f
