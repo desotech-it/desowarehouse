@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 registry_path=r.deso.tech/desowarehouse
 api_path="$registry_path/api"
 ui_path="$registry_path/ui"
