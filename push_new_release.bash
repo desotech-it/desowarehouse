@@ -31,10 +31,10 @@ then
 fi
 
 echo "Building $api_path"
-docker image build -t "$api_path:$major.$minor.$patch" -t "$api_path:$major.$minor" -t "$api_path:$major" -t "$api_path:latest" api
+docker image build --no-cache -t "$api_path:$major.$minor.$patch" -t "$api_path:$major.$minor" -t "$api_path:$major" -t "$api_path:latest" api
 
 echo "Building $ui_path"
-docker image build -t "$ui_path:$major.$minor.$patch" -t "$ui_path:$major.$minor" -t "$ui_path:$major" -t "$ui_path:latest" ui
+docker image build --no-cache -t "$ui_path:$major.$minor.$patch" -t "$ui_path:$major.$minor" -t "$ui_path:$major" -t "$ui_path:latest" ui
 
 echo "Pushing $api_path"
 docker image push -a "$api_path"
